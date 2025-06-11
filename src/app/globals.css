@@ -24,3 +24,24 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.bgg-main {
+ background-color: #8EB0D6;
+}
+
+.bgg-hover:hover {
+  background-color: #75a2d6;
+}
+
+.fff-main {
+ color: #8EB0D6;
+}
+
+.bdd-main {
+  border-color: #8EB0D6;
+}
+
+.text-vvs{
+  font-size: 10px;
+
+}

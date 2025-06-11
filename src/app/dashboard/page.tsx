@@ -1,35 +1,48 @@
-"use client"; // This page needs client-side rendering (optional but helpful)
+"use client";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getCookie } from "cookies-next";
+import DashboardDocuments from "@/components/DashboardDocument";
+import DashboardTable from "@/components/DashboardTable";
+import { useDocuments } from "@/lib/useDocuments";
 
 const Dashboard = () => {
   const router = useRouter();
+  const { documents, loading } = useDocuments();
 
   // You can add authentication checks here, for example, if the user is logged in
   useEffect(() => {
-    const isAuthenticated = true; // Replace with actual authentication check
-    if (!isAuthenticated) {
-      router.push("/login"); // Redirect to login if not authenticated
+    const token = getCookie('reminderx_access');
+    if (!token) {
+      router.push("/login");
     }
   }, [router]);
 
+  const expired = documents.filter(doc => doc.status === "expiring soon").length;
+  const normal = documents.length - expired;
+
   return (
-    <div className="min-h-screen p-8">
-      <h1 className="text-3xl font-bold">Welcome to your Dashboard</h1>
-      <div className="mt-4">
-        <p>This is your personalized dashboard.</p>
-        <p>You can add widgets, stats, and more here.</p>
+    <div className="h-full w-full font-mono">
+
+      <div className="fixed top-28 md:top-32 left-0 w-full px-2 md:pl-72">
+        <div className="overflow-x-auto xl:overflow-x-visible mx-5">
+          <div className="flex w-max xl:w-full space-x-5 xl:px-3 xl:justify-between">
+            <DashboardDocuments type="total" count={documents.length} action={2} />
+            <DashboardDocuments type="expired" count={expired} action={2} />
+            <DashboardDocuments type="normal" count={normal} action={2} />
+          </div>
+        </div>
       </div>
 
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold">Recent Activity</h2>
-        <ul className="space-y-4">
-          <li>Activity 1: Lorem ipsum dolor sit amet</li>
-          <li>Activity 2: Consectetur adipiscing elit</li>
-          <li>Activity 3: Integer nec odio. Praesent libero.</li>
-        </ul>
+      <div className="fixed top-72 md:top-80 left-0 w-full px-2 md:pl-72 h-[calc(100vh-20rem)] overflow-y-auto">
+        <div className="overflow-x-auto xl:overflow-x-visible me-5 h-full">
+          <div className="w-full xl:border border-gray-300 xl:shadow-md rounded-lg">
+            <DashboardTable data={documents} />
+          </div>
+        </div>
       </div>
+
     </div>
   );
 };

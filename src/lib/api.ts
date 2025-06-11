@@ -50,7 +50,7 @@ api.interceptors.response.use(
         }
 
         // Send the refresh token to the backend to get a new access token
-        const res = await axios.post('/api/token/refresh/', { refresh: refreshToken });
+        const res = await axios.post(`${API_BASE_URL}/api/token/refresh/`, { refresh: refreshToken });
 
         // Extract the new access token
         const newAccessToken = res.data.access;
