@@ -22,9 +22,9 @@ const DashboardDocuments: React.FC<DashboardDocumentsProps> = ({ type, count, ac
   } else if (type === 'total') {
     message = 'Total Documents';
     if(action > 0){
-        actionMessage = `+${action} new documents this month`
+        actionMessage = `${action} document(s) are expired`
     } else {
-        actionMessage = "No new documents this month"
+        actionMessage = "No expired documents"
     }
   } else if (type === 'normal') {
     message = 'Up to Date';

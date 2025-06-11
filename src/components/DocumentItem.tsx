@@ -14,7 +14,7 @@ interface DocumentItemProps {
 const DocumentItem: React.FC<DocumentItemProps> = ({ id, name, expiry_date, status, picture }) => {
   const [showActions, setShowActions] = useState(false);
 
-  const statusColor = status === "expiring soon" ? "bg-red-200" : "bg-green-200";
+  const statusColor = status === "up to date" ? "bg-green-200" : "bg-red-200";
 
   return (
     <div className="w-full bg-white text-gray-700 border border-gray-300 rounded-md p-3">

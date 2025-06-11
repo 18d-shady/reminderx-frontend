@@ -15,11 +15,11 @@ const DynamicNavHeader: React.FC<DynamicNavHeaderProps> = ({ user }) => {
   if (pathname.startsWith('/dashboard') || pathname === '/') {
     return (
         <div className="text-gray-800">
-          <p className="text-sm font-bold md:hidden">{user}</p>
-          <p className="text-xs md:hidden">Welcome Back</p>
+          <p className="text-sm font-bold md:hidden truncate">{user}</p>
+          <p className="text-xs md:hidden truncate">Welcome Back</p>
           
           <h3 className="text-2xl font-semibold hidden md:block">Dashboard</h3>
-          <p className="text-vvs hidden md:block">Welcome back! Monitor your upcoming document expirations.</p>
+          <p className="text-vvs hidden md:block truncate">Welcome back! Monitor your upcoming document expirations.</p>
         </div>
       );
   }
@@ -27,10 +27,10 @@ const DynamicNavHeader: React.FC<DynamicNavHeaderProps> = ({ user }) => {
   if (pathname.startsWith('/calendar')) {
     return (
         <div className="text-gray-800">
-          <p className="text-lg font-semibold md:hidden">DOC CALENDAR</p>
+          <p className="text-lg font-semibold md:hidden truncate">DOC CALENDAR</p>
           
           <h3 className="text-2xl font-semibold hidden md:block">Document Calendar</h3>
-          <p className="text-vvs hidden md:block">Welcome back! Monitor your upcoming document expirations.</p>
+          <p className="text-vvs hidden md:block truncate">Welcome back! Monitor your upcoming document expirations.</p>
         </div>
       );
   }
@@ -38,10 +38,10 @@ const DynamicNavHeader: React.FC<DynamicNavHeaderProps> = ({ user }) => {
   if (pathname.startsWith('/documents')) {
     return (
         <div className="text-gray-800">
-          <p className="text-lg font-semibold md:hidden">DOCUMENTS</p>
+          <p className="text-lg font-semibold md:hidden truncate">DOCUMENTS</p>
           
           <h3 className="text-2xl font-semibold hidden md:block">Documents</h3>
-          <p className="text-vvs hidden md:block">Welcome back! Monitor your upcoming document expirations.</p>
+          <p className="text-vvs hidden md:block truncate">Welcome back! Monitor your upcoming document expirations.</p>
         </div>
       );
   }
@@ -49,10 +49,10 @@ const DynamicNavHeader: React.FC<DynamicNavHeaderProps> = ({ user }) => {
   if (pathname.startsWith('/notifications')) {
     return (
         <div className="text-gray-800">
-          <p className="text-lg font-semibold md:hidden">NOTIFICATIONS</p>
+          <p className="text-lg font-semibold md:hidden truncate">NOTIFICATIONS</p>
           
           <h3 className="text-2xl font-semibold hidden md:block">Notifications</h3>
-          <p className="text-vvs hidden md:block">Welcome back! Monitor your upcoming document expirations.</p>
+          <p className="text-vvs hidden md:block truncate">Welcome back! Monitor your upcoming document expirations.</p>
         </div>
       );
   }
@@ -60,10 +60,10 @@ const DynamicNavHeader: React.FC<DynamicNavHeaderProps> = ({ user }) => {
   if (pathname.startsWith('/settings')) {
     return (
         <div className="text-gray-800">
-          <p className="text-lg font-semibold md:hidden">ALL SETTINGS</p>
+          <p className="text-lg font-semibold md:hidden truncate">ALL SETTINGS</p>
           
           <h3 className="text-2xl font-semibold hidden md:block">All Settings</h3>
-          <p className="text-vvs hidden md:block">Welcome back! Monitor your upcoming document expirations.</p>
+          <p className="text-vvs hidden md:block truncate">Welcome back! Monitor your upcoming document expirations.</p>
         </div>
       );
   }
@@ -71,11 +71,11 @@ const DynamicNavHeader: React.FC<DynamicNavHeaderProps> = ({ user }) => {
 
   return (
     <div className="text-gray-800">
-        <p className="text-sm font-bold md:hidden">{user}</p>
-        <p className="text-xs md:hidden">Welcome Back</p>
+        <p className="text-sm font-bold md:hidden truncate">{user}</p>
+        <p className="text-xs md:hidden truncate">Welcome Back</p>
 
         <h3 className="text-2xl font-semibold hidden md:block">Documents</h3>
-        <p className="text-vvs hidden md:block">Welcome back! Monitor your upcoming document expirations.</p>
+        <p className="text-vvs hidden md:block truncate">Welcome back! Monitor your upcoming document expirations.</p>
     </div>
   );
 };

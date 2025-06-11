@@ -54,7 +54,7 @@ const Navbar = () => {
         <div className="hidden lg:flex flex-row items-center lg:space-x-3 xl:space-x-5">
           <DocumentSearch />
 
-          <Link  href="/documents/new" className="px-4 py-3 text-xs text-white bgg-main rounded-xl "> +Add Doc Reminder </Link>
+          <Link  href="/documents/new" className="px-4 py-3 text-xs text-white bgg-main rounded-xl "> +Add Document</Link>
         </div>
 
         <div className="lg:hidden flex flex-row items-center space-x-5">

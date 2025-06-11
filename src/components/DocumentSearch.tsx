@@ -11,12 +11,27 @@ export function DocumentSearch() {
   const [results, setResults] = useState<any[]>([]);
   const [showMobileInput, setShowMobileInput] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (showMobileInput && inputRef.current) {
       inputRef.current.focus();
     }
   }, [showMobileInput]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowMobileInput(false);
+        setResults([]);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleSearch = async (term: string) => {
     try {
@@ -42,7 +57,14 @@ export function DocumentSearch() {
       <ul className="absolute bg-white border rounded w-full mt-1 z-10 shadow">
         {results.map((doc) => (
           <li key={doc.id} className="hover:bg-gray-100 text-sm">
-            <Link href={`/documents/${doc.id}`} className="block px-4 py-2 cursor-pointer">
+            <Link 
+              href={`/documents/${doc.id}`} 
+              className="block px-4 py-2 cursor-pointer"
+              onClick={() => {
+                setShowMobileInput(false);
+                setResults([]);
+              }}
+            >
               {doc.title}
             </Link>
           </li>
@@ -54,7 +76,7 @@ export function DocumentSearch() {
   // ✅ Mobile View
   if (isMobile) {
     return (
-      <div className="relative">
+      <div className="relative" ref={searchRef}>
         <button
           onClick={() => setShowMobileInput(!showMobileInput)}
           className="p-2 rounded-full border-2 bdd-main"
@@ -86,7 +108,7 @@ export function DocumentSearch() {
 
   // ✅ Large Screen View
   return (
-    <div className="relative max-w-md">
+    <div className="relative max-w-md" ref={searchRef}>
       <div className="relative">
         {/* SVG icon inside input */}
         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">

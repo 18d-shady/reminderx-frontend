@@ -12,7 +12,7 @@ type UIData = {
   picture: string;
 };
 
-const TABS = ["All Reminders", "Expiring Soon", "Up to Date"];
+const TABS = ["All Documents", "Expiring Soon", "Up to Date"];
 
 const categoryColors: { [key: string]: string } = {
   vehicle: 'bg-blue-300',
@@ -29,10 +29,10 @@ const categoryColors: { [key: string]: string } = {
 };
 
 const DashboardTable = ({ data }: { data: UIData[] }) => {
-  const [selectedTab, setSelectedTab] = useState("All Reminders");
+  const [selectedTab, setSelectedTab] = useState("All Documents");
 
   const filteredData =
-    selectedTab === "All Reminders"
+    selectedTab === "All Documents"
       ? data
       : data.filter((item) => item.status === selectedTab.toLowerCase());
 
@@ -110,7 +110,7 @@ const DashboardTable = ({ data }: { data: UIData[] }) => {
                 <td className="p-3">
                   <span
                     className={`capitalize px-2 py-1 rounded text-sm font-medium ${
-                      item.status === 'expiring soon' ? 'bg-red-300' : 'bg-green-300'
+                      item.status === 'up to date' ? 'bg-green-300' : 'bg-red-300'
                     }`}
                   >
                     {item.status}
@@ -125,7 +125,7 @@ const DashboardTable = ({ data }: { data: UIData[] }) => {
           ) : (
             <tr>
               <td colSpan={5} className="p-4 text-center text-gray-500">
-                No reminders
+                No Documents
               </td>
             </tr>
           )}

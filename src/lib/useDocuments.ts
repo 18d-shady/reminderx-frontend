@@ -24,7 +24,14 @@ const computeStatus = (expiryDate: string): string => {
   const today = dayjs();
   const expiry = dayjs(expiryDate);
   const daysLeft = expiry.diff(today, "day");
-  return daysLeft <= 7 ? "expiring soon" : "up to date";
+  
+  if (daysLeft < 0) {
+    return "expired";
+  } else if (daysLeft <= 7) {
+    return "expiring soon";
+  } else {
+    return "up to date";
+  }
 };
 
 export const useDocuments = () => {

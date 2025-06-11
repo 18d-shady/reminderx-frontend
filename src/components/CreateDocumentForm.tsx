@@ -46,9 +46,11 @@ const CreateDocumentForm = () => {
       const particularId = particular.id;
   
       // 2. Create Reminder
+      // Convert the datetime-local input value to ISO string
+      const scheduledDate = new Date(scheduleDate);
       const reminderPayload = {
         particular: particularId,
-        scheduled_date: scheduleDate,
+        scheduled_date: scheduledDate.toISOString(),
         reminder_methods: reminderMethods,
         recurrence,
         start_days_before: startDaysBefore,
@@ -183,11 +185,22 @@ const CreateDocumentForm = () => {
 
         <label className='text-gray-800 text-sm'>Start Day Before Expiry Date</label>
         <input
-          className="border border-gray-400 p-4 rounded-full text-sm mb-6"
+          className={`border border-gray-400 p-4 rounded-full text-sm mb-6 ${recurrence === 'none' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
           type="number"
           value={startDaysBefore}
-          onChange={(e) => setStartDaysBefore(parseInt(e.target.value))}
+          onChange={(e) => {
+            const value = parseInt(e.target.value);
+            if (value > 7) {
+              setStartDaysBefore(7);
+            } else if (value < 1) {
+              setStartDaysBefore(1);
+            } else {
+              setStartDaysBefore(value);
+            }
+          }}
           min={1}
+          max={7}
+          disabled={recurrence === 'none'}
         />
 
         {error && <p className="text-red-600 text-sm">{error}</p>}

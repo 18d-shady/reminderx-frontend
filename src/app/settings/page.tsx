@@ -2,11 +2,15 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { fetchCurrentUser, updateUserSettings } from '@/lib/user';
+import { fetchCurrentUser, updateUserSettings, deleteProfile } from '@/lib/user';
 import type CurrentUser from "@/lib/user";
 import Loader from '@/components/Loader';
+import { useRouter } from 'next/navigation';
+import Modal from '@/components/Modal';
+import { logout } from "@/lib/auth";
 
 const SettingsPage = () => {
+  const router = useRouter();
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [username, setUsername] = useState('');
@@ -15,6 +19,8 @@ const SettingsPage = () => {
   const [smsNotifications, setSmsNotifications] = useState(false);
   const [pushNotifications, setPushNotifications] = useState(false);
   const [whatsappNotifications, setWhatsappNotifications] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [showNotificationEdit, setShowNotificationEdit] = useState(false);
@@ -40,6 +46,21 @@ const SettingsPage = () => {
     };
     loadUser();
   }, []);
+
+  const handleDeleteProfile = async () => {
+    try {
+      setIsDeleting(true);
+      await deleteProfile();
+      logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('Error deleting profile:', error);
+      setSaveError('Failed to delete profile. Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
 
   const handleSaveProfile = async () => {
     try {
@@ -83,8 +104,8 @@ const SettingsPage = () => {
       const updatedUser  = await fetchCurrentUser ();
       if (updatedUser ) {
         setUser (updatedUser );
-        setEmailNotifications(updatedUser .email_notifications);
-        setSmsNotifications(updatedUser .sms_notifications);
+        setEmailNotifications(updatedUser.email_notifications);
+        setSmsNotifications(updatedUser.sms_notifications);
         setPushNotifications(updatedUser.push_notifications);
         setWhatsappNotifications(updatedUser.whatsapp_notifications);
       }
@@ -312,6 +333,70 @@ const SettingsPage = () => {
           </button>
         </div>
       </div>
+
+      {/* Delete Profile Section */}
+      <div>
+        <h4 className="text-sm font-bold text-gray-800 mb-3">Danger Zone</h4>
+        <div className="rounded-md border border-red-400 h-14 flex justify-between items-center p-2">
+          <div className="flex items-center space-x-3">
+            <div className='h-10 w-10 bg-red-100 rounded-lg flex items-center justify-center'>
+              <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            <div>
+              <h5 className="text-xs text-red-600">Delete Account</h5>
+              <p className="text-vvs text-red-500">Permanently delete your account and all data</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setShowDeleteModal(true)}
+            className='p-2 text-sm text-red-600 hover:text-red-700'
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Delete Account"
+        size="sm"
+        footer={
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={() => setShowDeleteModal(false)}
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteProfile}
+              disabled={isDeleting}
+              className="px-4 py-2 text-sm text-white bg-red-600 rounded hover:bg-red-700 disabled:opacity-50"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Account'}
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            Are you sure you want to delete your account? This action cannot be undone and will permanently delete:
+          </p>
+          <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+            <li>All your documents and files</li>
+            <li>All your reminders and notifications</li>
+            <li>Your profile and settings</li>
+            <li>All associated data</li>
+          </ul>
+          <p className="text-sm text-red-600 font-medium">
+            Please note: This action is permanent and cannot be reversed.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 };

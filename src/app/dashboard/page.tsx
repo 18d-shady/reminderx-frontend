@@ -19,8 +19,9 @@ const Dashboard = () => {
     }
   }, [router]);
 
-  const expired = documents.filter(doc => doc.status === "expiring soon").length;
-  const normal = documents.length - expired;
+  const expiring = documents.filter(doc => doc.status === "expiring soon").length;
+  const expired = documents.filter(doc => doc.status === "expired").length;
+  const normal = documents.filter(doc => doc.status === "up to date").length;
 
   return (
     <div className="h-full w-full font-mono">
@@ -28,9 +29,9 @@ const Dashboard = () => {
       <div className="fixed top-28 md:top-32 left-0 w-full px-2 md:pl-72">
         <div className="overflow-x-auto xl:overflow-x-visible mx-5">
           <div className="flex w-max xl:w-full space-x-5 xl:px-3 xl:justify-between">
-            <DashboardDocuments type="total" count={documents.length} action={2} />
-            <DashboardDocuments type="expired" count={expired} action={2} />
-            <DashboardDocuments type="normal" count={normal} action={2} />
+            <DashboardDocuments type="total" count={documents.length} action={expired} />
+            <DashboardDocuments type="expired" count={expiring} action={expired} />
+            <DashboardDocuments type="normal" count={normal} action={0} />
           </div>
         </div>
       </div>

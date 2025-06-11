@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { differenceInDays, parseISO } from 'date-fns';
 import api from "@/lib/api";
 import Link from 'next/link';
+import { deleteParticular } from '@/lib/user';
+import Modal from './Modal';
 
 type Reminder = {
   id: number;
@@ -27,7 +29,10 @@ type Particular = {
 
 const DocumentDetails = () => {
   const { id } = useParams();
+  const router = useRouter();
   const [particular, setParticular] = useState<Particular | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchParticular = async () => {
@@ -37,6 +42,20 @@ const DocumentDetails = () => {
 
     fetchParticular();
   }, [id]);
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await deleteParticular(Number(id));
+      router.push('/documents');
+    } catch (error) {
+      console.error('Failed to delete document:', error);
+      alert('Failed to delete document. Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+    }
+  };
 
   if (!particular) return <div className="p-5">Loading...</div>;
     const expiryDate = parseISO(particular.expiry_date);
@@ -138,17 +157,47 @@ const DocumentDetails = () => {
           {particular.reminders.length > 0 ? (
             <div className='space-y-4'>
               {particular.reminders.map((reminder) => (
-                <div key={reminder.id} className='text-sm border-l-2 border-gray-200 pl-4'>
-                  <p className='my-1'><strong>Date:</strong> {new Date(reminder.scheduled_date).toLocaleString()}</p>
-                  <p className='my-1'><strong>Methods:</strong></p>
-                  <ul className='list-disc list-inside ml-4'>
-                    {reminder.reminder_methods.map((method, index) => (
-                      <li key={index} className='text-xs capitalize'>{method}</li>
-                    ))}
-                  </ul>
-                  <p className='my-1'><strong>Message:</strong> {reminder.reminder_message || 'N/A'}</p>
-                  <p className='my-1'><strong>Recurrence:</strong> {reminder.recurrence}</p>
-                  <p className='my-1'><strong>Start Days Before:</strong> {reminder.start_days_before}</p>
+                <div className="bg-white rounded-lg shadow p-1">
+                  <div key={reminder.id} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-600 mb-1">Reminder Date</h3>
+                      <p className="text-gray-800 text-sm">
+                        {reminder.scheduled_date ? new Date(reminder.scheduled_date).toLocaleString() : 'Not set'}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-600 mb-1">Recurrence</h3>
+                      <p className="text-gray-800 text-sm">
+                        {reminder.recurrence === 'none' ? 'No recurrence' : 
+                        reminder.recurrence === 'daily' ? 'Daily' : 
+                        reminder.recurrence === 'every_2_days' ? 'Every 2 days' : 
+                        reminder.recurrence}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-600 mb-1">Start Days Before Expiry</h3>
+                      <p className="text-gray-800 text-sm">
+                        {reminder.recurrence === 'none' ? 'N/A' : 
+                        `${reminder.start_days_before} days`}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-600 mb-1">Notification Methods</h3>
+                      <div className="flex flex-wrap gap-2 text-sm">
+                        {reminder.reminder_methods.map((method) => (
+                          <span 
+                            key={method} 
+                            className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs"
+                          >
+                            {method.charAt(0).toUpperCase() + method.slice(1)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -160,6 +209,40 @@ const DocumentDetails = () => {
         <Link href={`/documents/${id}/edit`} className="px-4 py-4 text-xs text-white bgg-main rounded-3xl text-center">
           Edit Document
         </Link>
+        <button 
+          onClick={() => setIsDeleteModalOpen(true)}
+          className='px-4 py-4 text-xs text-white bg-red-600 rounded-3xl text-center hover:bg-red-700'
+        >
+          Delete Document
+        </button>
+
+        <Modal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          title="Delete Document"
+          size="sm"
+          footer={
+            <>
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </>
+          }
+        >
+          <p className="text-sm text-gray-600">
+            Are you sure you want to delete this document? This action cannot be undone.
+          </p>
+        </Modal>
       </div>
     );
 };

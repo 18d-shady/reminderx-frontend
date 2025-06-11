@@ -58,6 +58,14 @@ export const updateUserSettings = async (payload: {
   return response.data;
 };
 
+export const deleteProfile = async (): Promise<void> => {
+  try {
+    await api.delete('/api/me/');
+  } catch (error) {
+    console.error('Failed to delete profile:', error);
+    throw error;
+  }
+};
 
 // lib/api/particulars.ts
 //import api from '@/lib/api';
@@ -66,6 +74,12 @@ export interface Particular {
   id: number;
   title: string;
   expiry_date: string;
+  reminders: {
+    id: number;
+    scheduled_date: string;
+    recurrence: string;
+    start_days_before: number;
+  }[];
 }
 
 export const fetchParticulars = async (): Promise<Particular[]> => {
@@ -145,5 +159,16 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
     return [];
   }
 };
+
+// Delete a particular and its reminders
+export async function deleteParticular(id: number) {
+  try {
+    const response = await api.delete(`/api/particulars/${id}/`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete particular:', error);
+    throw error;
+  }
+}
 
 
