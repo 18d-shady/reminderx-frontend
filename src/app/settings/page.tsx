@@ -30,6 +30,7 @@ const SettingsPage = () => {
 
   const [showImageOptions, setShowImageOptions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageOptionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -45,6 +46,19 @@ const SettingsPage = () => {
       }
     };
     loadUser();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (imageOptionsRef.current && !imageOptionsRef.current.contains(event.target as Node)) {
+        setShowImageOptions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const handleDeleteProfile = async () => {
@@ -181,8 +195,9 @@ const SettingsPage = () => {
                 </div>
               )}
             </div>
+            
             {showImageOptions && (
-              <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 w-32">
+              <div ref={imageOptionsRef} className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 w-32 z-10">
                 <button
                   onClick={handleImageEdit}
                   className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
@@ -216,7 +231,7 @@ const SettingsPage = () => {
           </div>
         </div>
         <button
-          className='w-12 h-12 rounded-full bgg-main opacity-75 p-3'
+          className='w-12 h-12 hidden rounded-full bgg-main opacity-75 p-3'
           onClick={() => {
             setShowProfileEdit((prev) => !prev);
             setEditMode(true);

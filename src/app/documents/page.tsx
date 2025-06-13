@@ -36,7 +36,7 @@ const DocumentPage = () => {
       </div>
 
       {/* Mobile View */}
-      <div className="w-full flex flex-col space-y-4 lg:hidden ">
+      <div className="w-full h-full flex flex-col space-y-4 lg:hidden ">
         {filteredDocuments.length > 0 ? (
           filteredDocuments.map((doc) => (
             <DocumentItem

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 
 interface DocumentItemProps {
@@ -13,6 +13,20 @@ interface DocumentItemProps {
 
 const DocumentItem: React.FC<DocumentItemProps> = ({ id, name, expiry_date, status, picture }) => {
   const [showActions, setShowActions] = useState(false);
+  const actionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (actionsRef.current && !actionsRef.current.contains(event.target as Node)) {
+        setShowActions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const statusColor = status === "up to date" ? "bg-green-200" : "bg-red-200";
 
@@ -64,7 +78,7 @@ const DocumentItem: React.FC<DocumentItemProps> = ({ id, name, expiry_date, stat
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative" ref={actionsRef}>
           <button
             className="w-8 h-8 rounded-full bgg-main opacity-75 p-2"
             onClick={() => setShowActions(!showActions)}
