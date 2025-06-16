@@ -6,6 +6,7 @@ import { getCookie } from "cookies-next";
 import DashboardDocuments from "@/components/DashboardDocument";
 import DashboardTable from "@/components/DashboardTable";
 import { useDocuments } from "@/lib/useDocuments";
+import Loader from '@/components/Loader';
 
 const Dashboard = () => {
   const router = useRouter();
@@ -22,6 +23,10 @@ const Dashboard = () => {
   const expiring = documents.filter(doc => doc.status === "expiring soon").length;
   const expired = documents.filter(doc => doc.status === "expired").length;
   const normal = documents.filter(doc => doc.status === "up to date").length;
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div className="h-full w-full font-mono">
