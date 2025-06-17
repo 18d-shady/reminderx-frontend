@@ -24,6 +24,8 @@ const SettingsPage = () => {
 
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [showNotificationEdit, setShowNotificationEdit] = useState(false);
+  const [showPhoneEdit, setShowPhoneEdit] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -39,6 +41,7 @@ const SettingsPage = () => {
         setUser(data);
         setUsername(data.user.username);
         setEmail(data.user.email);
+        setPhoneNumber(data.phone_number || '');
         setEmailNotifications(data.email_notifications);
         setSmsNotifications(data.sms_notifications);
         setPushNotifications(data.push_notifications);
@@ -126,6 +129,29 @@ const SettingsPage = () => {
     } catch (error) {
       setSaveError('Failed to save notification settings');
       console.error('Error saving notifications:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSavePhone = async () => {
+    try {
+      setIsSaving(true);
+      setSaveError(null);
+      await updateUserSettings({
+        phone_number: phoneNumber,
+      });
+      setShowPhoneEdit(false);
+      
+      // Refresh user data
+      const updatedUser = await fetchCurrentUser();
+      if (updatedUser) {
+        setUser(updatedUser);
+        setPhoneNumber(updatedUser.phone_number || '');
+      }
+    } catch (error) {
+      setSaveError('Failed to save phone number');
+      console.error('Error saving phone:', error);
     } finally {
       setIsSaving(false);
     }
@@ -271,6 +297,53 @@ const SettingsPage = () => {
               {isSaving ? 'Saving...' : 'Save Profile'}
             </button>
           )}
+          {saveError && <p className="text-red-500 text-sm">{saveError}</p>}
+        </div>
+      )}
+
+      {/* Phone Number Section */}
+      <div>
+        <h4 className="text-sm font-bold text-gray-800 mb-3">Contact Information</h4>
+        <div className="rounded-md border border-gray-400 h-14 flex justify-between items-center p-2">
+          <div className="flex items-center space-x-3">
+            <div className='h-10 w-10 bgg-main opacity-75 rounded-lg flex items-center justify-center'>
+              <svg className="h-6 w-6 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+            </div>
+            <div>
+              <h5 className="text-xs">Phone Number</h5>
+              <p className="text-vvs fff-main">{phoneNumber || 'Not set'}</p>
+            </div>
+          </div>
+          <button className='p-3' onClick={() => setShowPhoneEdit(prev => !prev)}>
+            <svg className="h-5 w-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Phone Edit Section */}
+      {showPhoneEdit && (
+        <div className="mt-2 border border-gray-200 rounded p-4 bg-gray-50 space-y-2">
+          <div className="space-y-2">
+            <label className="block text-sm text-gray-700">Phone Number</label>
+            <input
+              type="tel"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              placeholder="Enter phone number"
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <button
+            onClick={handleSavePhone}
+            disabled={isSaving}
+            className="w-full bgg-main text-black py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50 mt-4"
+          >
+            {isSaving ? 'Saving...' : 'Save Phone Number'}
+          </button>
           {saveError && <p className="text-red-500 text-sm">{saveError}</p>}
         </div>
       )}

@@ -4,7 +4,7 @@ import { logout } from './auth'; // Your logout function
 
 // Replace with your backend URL
 //const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const API_BASE_URL = 'http://naikas.com/api';
+const API_BASE_URL = 'http://naikas.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

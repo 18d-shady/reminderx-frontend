@@ -30,6 +30,7 @@ export const fetchCurrentUser = async (): Promise<CurrentUser | null> => {
 export const updateUserSettings = async (payload: {
   username?: string;
   email?: string;
+  phone_number?: string;
   email_notifications?: boolean;
   sms_notifications?: boolean;
   whatsapp_notifications?: boolean;
