@@ -91,6 +91,28 @@ const EditDocumentForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const reminder = new Date(scheduleDate);
+
+    // Validation: expiry date must be after today
+    if (expiry <= today) {
+      setError('Expiry date must be after today.');
+      return;
+    }
+
+    // Validation: reminder must be after or equal to today
+    if (reminder < today) {
+      setError('Reminder date cannot be before today.');
+      return;
+    }
+
+    // Validation: reminder must not be after expiry
+    if (reminder > expiry) {
+      setError('Reminder date cannot be after expiry date.');
+      return;
+    }
     
     if (!particular) return;
 
@@ -149,7 +171,7 @@ const EditDocumentForm = () => {
 
   return (
     <div className="p-6 max-w-xl mx-auto bg-white shadow rounded-lg font-mono">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 text-gray-800">
         <label className='text-gray-800 text-sm'>Document Name<span className="text-red-700">*</span></label>
         <input
           className="border border-gray-400 p-4 rounded-full text-sm mb-2"
@@ -211,6 +233,9 @@ const EditDocumentForm = () => {
         <h2 className="text-gray-800 font-semibold mt-6">Reminder Settings</h2>
         
         <label className='text-gray-800 text-sm'>Reminder Date<span className="text-red-700">*</span></label>
+        <small className="text-gray-500 mb-1 block">
+          e.g., 10/06/2025 at 09:30 AM
+        </small>
         <input
           className="border border-gray-400 p-4 rounded-full text-sm mb-2"
           type="datetime-local"
@@ -283,7 +308,7 @@ const EditDocumentForm = () => {
         
         <button
           type="submit"
-          className="bgg-main text-white p-5 rounded-3xl"
+          className="bgg-main bgg-hover text-white p-5 rounded-3xl"
         >
           Update Document
         </button>

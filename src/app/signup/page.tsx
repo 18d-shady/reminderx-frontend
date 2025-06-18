@@ -12,6 +12,7 @@ const SignupPage = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState('');
   const [repassword, setRePassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,8 +25,18 @@ const SignupPage = () => {
     }
   }, [router]);
 
+  const isValidPassword = (password: string) => {
+    const minLength = password.length >= 5;
+    const hasNumber = /\d/.test(password); // \d matches any digit
+    return minLength && hasNumber;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isValidPassword(password)) {
+      setPasswordError("Password must be at least 5 characters and contain a number.");
+      return;
+    }
     setError(null);
     setIsLoading(true);
 
@@ -65,10 +76,20 @@ const SignupPage = () => {
        translate-x-[800px] md:translate-x-[550px] md:translate-y-[550px]
        lg:translate-x-28 lg:translate-y-[550px] w-[1000px] h-[1000px]"></div>
       <div className="p-8 w-full h-full md:w-7/12 lg:w-5/12 flex flex-col justify-between">
-        <h1 className="flex items-center text-white text-xl">
-          REMINDER 
-          <span className="fff-main text-4xl ">X</span>
-        </h1>
+        <div className="flex items-center text-white text-xl m-4 space-x-2 ">
+          <div className="w-9 h-9 overflow-hidden rounded-md relative">
+            <Image 
+              alt="naikas"
+              src="/images/naikas_icon.png"
+              fill
+              style={{ 
+                objectFit: 'cover', 
+                objectPosition: 'center' 
+              }}
+            />
+          </div>
+          <h1 className="">NAIKAS</h1>
+        </div>
 
         <div className="text-white xl:px-10">
           <h4 className="text-center text-xl lg:text-2xl">Create Account</h4>
@@ -100,11 +121,26 @@ const SignupPage = () => {
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full mt-3 p-4 bg-white rounded-full text-sm text-gray-800"
+              onChange={(e) => {
+                const value = e.target.value;
+                setPassword(value);
+
+                if (!isValidPassword(value)) {
+                  setPasswordError("Password must be at least 5 characters and contain a number.");
+                } else {
+                  setPasswordError('');
+                }
+              }}
+              className={`w-full mt-3 p-4 rounded-full text-xs ${
+                passwordError ? 'border border-red-500' : 'bg-white text-gray-800'
+              }`}
               placeholder="Password"
               required
             />
+
+            {passwordError && (
+              <p className="text-red-500 text-xs mt-1">{passwordError}</p>
+            )}
 
             <input
               type="password"
@@ -118,7 +154,7 @@ const SignupPage = () => {
 
             <button
               type="submit"
-              className="w-full bgg-main text-black p-4 rounded-xl hover:bg-blue-600 transition
+              className="w-full bgg-main bgg-hover text-black p-4 rounded-xl hover:bg-blue-600 transition
                duration-200 mt-3 text-sm"
             >
               Create Account

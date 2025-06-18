@@ -7,6 +7,7 @@ import api from "@/lib/api";
 import Link from 'next/link';
 import { deleteParticular } from '@/lib/user';
 import Modal from './Modal';
+import { getFileTypeIcon } from '@/lib/getFileIcon';
 
 type Reminder = {
   id: number;
@@ -82,31 +83,28 @@ const DocumentDetails = () => {
           <div className="flex flex-row justify-start space-x-4">
             <div className="w-12 h-12 rounded overflow-hidden flex items-center justify-center">
               {particular.document_url ? (
-                <>
-                    {particular.document_url.match(/\.(jpeg|jpg|png|gif)$/i) ? (
-                    <img
-                        src={particular.document_url}
-                        alt={particular.title}
-                        className="w-full max-w-sm h-auto object-contain"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                    />
-                    ) : (
-                    <a
-                        href={particular.document_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
-                        className="text-blue-600 underline text-vvs"
-                    >
-                        View or Download
-                    </a>
-                    )}
-                </>
-                ) : (
+                (() => {
+                  const type = getFileTypeIcon(particular.document_url);
+
+                  if (type === 'image') {
+                    return (
+                      <img src={particular.document_url} alt={particular.title} className="w-full max-w-sm h-auto object-contain"
+                          onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                      />
+                    );
+                  } else {
+                    return (
+                      <a href={particular.document_url} target="_blank" rel="noopener noreferrer" className="fff-main text-vvs">
+                          {type.toUpperCase()}
+                      </a>
+                    );
+                  }
+                })()
+              ) : (
                 <div className='w-full h-full bgg-main opacity-75 p-2 rounded-md'>
-                  <svg className="h-8 w-8 text-gray-800"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  
+                  <svg className="h-8 w-8 text-white"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />  
                     <polyline points="14 2 14 8 20 8" />  
                     <line x1="16" y1="13" x2="8" y2="13" />  
@@ -114,7 +112,7 @@ const DocumentDetails = () => {
                     <polyline points="10 9 9 9 8 9" />
                   </svg>
                 </div>
-                )}
+              )}
             </div>
 
             <div className="flex flex-col justify-between">
@@ -134,7 +132,15 @@ const DocumentDetails = () => {
           </div>
         </div>
 
-        <h4 className='text-sm font-semibold'>Document Details</h4>
+        <div className='flex flex-row justify-between items-center'>
+          <h4 className='text-sm font-semibold'>Document Details</h4>
+          {isExpiringSoon ? (
+            <button className='bgg-main bgg-hover text-white px-3 py-1 text-sm rounded-md'>Renew</button>
+          ):(
+            <span></span>
+          )
+          }
+        </div>
 
         <div className="border border-gray-300 p-4 rounded-lg">
           <div className='flex flex-row justify-between text-sm my-1'>
@@ -145,11 +151,6 @@ const DocumentDetails = () => {
           <div className='flex flex-row justify-between text-sm my-1'>
             <h4>Expiry Date</h4>
             <h4>{particular.expiry_date}</h4>
-          </div>
-
-          <div className='flex flex-row justify-between text-sm my-1'>
-            <h4>Issuing Authority</h4>
-            <h4 className='fff-main'>www.bla bla</h4>
           </div>
 
           <h4 className='font-semibold text-sm mt-4 mb-2'>Reminder Settings:</h4>
@@ -206,7 +207,7 @@ const DocumentDetails = () => {
           )}
         </div>
 
-        <Link href={`/documents/${id}/edit`} className="px-4 py-4 text-xs text-white bgg-main rounded-3xl text-center">
+        <Link href={`/documents/${id}/edit`} className="px-4 py-4 text-xs text-white bgg-main bgg-hover rounded-3xl text-center">
           Edit Document
         </Link>
         <button 

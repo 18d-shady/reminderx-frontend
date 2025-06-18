@@ -32,10 +32,20 @@ const Sidebar = () => {
     <nav className="flex flex-col justify-between h-screen font-mono w-full">
 
       <div className="flex flex-col space-y-3 text-sm">
-        <h1 className="flex items-center text-white text-xl m-4">
-          REMINDER 
-          <span className="fff-main text-4xl ">X</span>
-        </h1>
+        <div className="flex items-center text-white text-xl m-4 space-x-2 ">
+          <div className="w-9 h-9 overflow-hidden rounded-md relative">
+            <Image 
+              alt="naikas"
+              src="/images/naikas_icon.png"
+              fill
+              style={{ 
+                objectFit: 'cover', 
+                objectPosition: 'center' 
+              }}
+            />
+          </div>
+          <h1 className="">NAIKAS</h1>
+        </div>
 
         <div className="flex items-center bg-white text-gray-800 rounded-full space-x-2 overflow-hidden
           mx-4 mt-4 pe-5 max-w-[80%]">

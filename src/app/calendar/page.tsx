@@ -96,7 +96,7 @@ const CalendarPage = () => {
       <div className="fixed bottom-10 right-10">
         <button
           onClick={() => setViewMode(viewMode === 'calendar' ? 'list' : 'calendar')}
-          className="p-4 text-white bgg-main rounded-full shadow-lg transition duration-200"
+          className="p-4 text-white bgg-main bgg-hover rounded-full shadow-lg transition duration-200"
         >
           {viewMode === 'calendar' ? (
             <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -54,7 +54,7 @@ const Navbar = () => {
         <div className="hidden lg:flex flex-row items-center lg:space-x-3 xl:space-x-5">
           <DocumentSearch />
 
-          <Link  href="/documents/new" className="px-4 py-3 text-xs text-white bgg-main rounded-xl "> +Add Document</Link>
+          <Link  href="/documents/new" className="px-4 py-3 text-xs text-white bgg-main bgg-hover rounded-xl "> +Add Document</Link>
         </div>
 
         <div className="lg:hidden flex flex-row items-center space-x-5">
@@ -106,10 +106,20 @@ const Navbar = () => {
           <div className="fixed top-0 bottom-0 left-0 right-0 bg-black p-4 flex flex-col justify-between text-white">
             <div className="flex flex-col space-y-3 text-sm">
               <div className="flex flex-row items-center justify-between">
-                <h1 className="flex items-center text-white text-xl m-4">
-                  REMINDER 
-                  <span className="fff-main text-4xl ">X</span>
-                </h1>
+                <div className="flex items-center text-white text-xl m-4 space-x-2 ">
+                  <div className="w-9 h-9 overflow-hidden rounded-md relative">
+                    <Image 
+                      alt="naikas"
+                      src="/images/naikas_icon.png"
+                      fill
+                      style={{ 
+                        objectFit: 'cover', 
+                        objectPosition: 'center' 
+                      }}
+                    />
+                  </div>
+                  <h1 className="">NAIKAS</h1>
+                </div>
                 <button onClick={toggleMobileMenu} className="p-2 rounded-full bg-gray-600 text-white">
                 <svg className="h-5 w-5"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z"/>  

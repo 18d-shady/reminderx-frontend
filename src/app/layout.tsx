@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ReminderX",
+  title: "Naikas",
   description: "Never forget to renew again",
 };
 

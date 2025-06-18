@@ -2,6 +2,7 @@
 
 import {useState} from "react";
 import Link from 'next/link';
+import { getFileTypeIcon } from "@/lib/getFileIcon";
 
 type UIData = {
   id: number;
@@ -45,7 +46,7 @@ const DashboardTable = ({ data }: { data: UIData[] }) => {
             key={tab}
             onClick={() => setSelectedTab(tab)}
             className={`px-6 py-3 rounded-lg border border-gray-200 ${
-              selectedTab === tab ? "bgg-main" : "bg-white"
+              selectedTab === tab ? "bgg-main bgg-hover" : "bg-white"
             }`}
           >
             {tab}
@@ -71,22 +72,28 @@ const DashboardTable = ({ data }: { data: UIData[] }) => {
                 <td className="p-3 flex flex-row items-center space-x-5">
                   <div className="w-9 h-9 rounded overflow-hidden flex items-center justify-center">
                     {item.picture ? (
-                      <>
-                        {item.picture.match(/\.(jpeg|jpg|png|gif)$/i) ? (
-                        <img src={item.picture} alt={item.document} className="w-full h-full object-contain"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                        />
-                        ) : (
-                        <a href={item.picture} target="_blank" rel="noopener noreferrer" download className="text-blue-600 underline text-vvs">
-                            View
-                        </a>
-                        )}
-                      </>
+                      (() => {
+                        const type = getFileTypeIcon(item.picture);
+
+                        if (type === 'image') {
+                          return (
+                            <img src={item.picture} alt={item.document} className="w-full h-full object-contain"
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                }}
+                            />
+                          );
+                        } else {
+                          return (
+                            <a href={item.picture} target="_blank" rel="noopener noreferrer" className="fff-main text-vvs">
+                                {type.toUpperCase()}
+                            </a>
+                          );
+                        }
+                      })()
                     ) : (
                       <div className="w-full h-full bgg-main opacity-75 p-2 rounded-md">
-                        <svg className="h-5 w-5 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                           <polyline points="14 2 14 8 20 8" />
                           <line x1="16" y1="13" x2="8" y2="13" />

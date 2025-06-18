@@ -3,8 +3,8 @@ import { getCookie, setCookie } from 'cookies-next';
 import { logout } from './auth'; // Your logout function
 
 // Replace with your backend URL
-//const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const API_BASE_URL = 'https://naikas.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+//const API_BASE_URL = 'https://naikas.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

@@ -8,6 +8,8 @@ import Loader from '@/components/Loader';
 import { useRouter } from 'next/navigation';
 import Modal from '@/components/Modal';
 import { logout } from "@/lib/auth";
+import 'react-phone-number-input/style.css'
+import PhoneInput from 'react-phone-number-input'
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -25,7 +27,7 @@ const SettingsPage = () => {
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [showNotificationEdit, setShowNotificationEdit] = useState(false);
   const [showPhoneEdit, setShowPhoneEdit] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState<string | undefined>(undefined);
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -134,26 +136,38 @@ const SettingsPage = () => {
     }
   };
 
+  const isValidPhoneNumber = (phone: string) => {
+    const sanitized = phone.replace(/\s+/g, ''); // remove all spaces
+    const regex = /^\+\d{10,15}$/;
+    console.log("Sanitized phone:", sanitized);
+    console.log("Valid:", regex.test(sanitized));
+    return regex.test(sanitized);
+  };
+
   const handleSavePhone = async () => {
-    try {
-      setIsSaving(true);
-      setSaveError(null);
-      await updateUserSettings({
-        phone_number: phoneNumber,
-      });
-      setShowPhoneEdit(false);
-      
-      // Refresh user data
-      const updatedUser = await fetchCurrentUser();
-      if (updatedUser) {
-        setUser(updatedUser);
-        setPhoneNumber(updatedUser.phone_number || '');
+    if (phoneNumber && isValidPhoneNumber(phoneNumber)) {
+      try {
+        setIsSaving(true);
+        setSaveError(null);
+        await updateUserSettings({
+          phone_number: phoneNumber,
+        });
+        setShowPhoneEdit(false);
+        
+        // Refresh user data
+        const updatedUser = await fetchCurrentUser();
+        if (updatedUser) {
+          setUser(updatedUser);
+          setPhoneNumber(updatedUser.phone_number || '');
+        }
+      } catch (error) {
+        setSaveError('Failed to save phone Number');
+        //console.error('Error saving phone:', error);
+      } finally {
+        setIsSaving(false);
       }
-    } catch (error) {
-      setSaveError('Failed to save phone number');
-      console.error('Error saving phone:', error);
-    } finally {
-      setIsSaving(false);
+    } else {
+      setSaveError('Phone number should be in this format +2348012345678, preferably whatsapp');
     }
   };
 
@@ -257,7 +271,7 @@ const SettingsPage = () => {
           </div>
         </div>
         <button
-          className='w-12 h-12 hidden rounded-full bgg-main opacity-75 p-3'
+          className='w-12 h-12 hidden rounded-full bgg-main bgg-hover opacity-75 p-3'
           onClick={() => {
             setShowProfileEdit((prev) => !prev);
             setEditMode(true);
@@ -304,7 +318,8 @@ const SettingsPage = () => {
       {/* Phone Number Section */}
       <div>
         <h4 className="text-sm font-bold text-gray-800 mb-3">Contact Information</h4>
-        <div className="rounded-md border border-gray-400 h-14 flex justify-between items-center p-2">
+        <div className="rounded-md border border-gray-400 h-14 flex justify-between items-center p-2"
+         onClick={() => setShowPhoneEdit(prev => !prev)}>
           <div className="flex items-center space-x-3">
             <div className='h-10 w-10 bgg-main opacity-75 rounded-lg flex items-center justify-center'>
               <svg className="h-6 w-6 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -316,11 +331,11 @@ const SettingsPage = () => {
               <p className="text-vvs fff-main">{phoneNumber || 'Not set'}</p>
             </div>
           </div>
-          <button className='p-3' onClick={() => setShowPhoneEdit(prev => !prev)}>
+          <div className='p-3'>
             <svg className="h-5 w-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
             </svg>
-          </button>
+          </div>
         </div>
       </div>
 
@@ -329,18 +344,19 @@ const SettingsPage = () => {
         <div className="mt-2 border border-gray-200 rounded p-4 bg-gray-50 space-y-2">
           <div className="space-y-2">
             <label className="block text-sm text-gray-700">Phone Number</label>
-            <input
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="Enter phone number"
+            <PhoneInput
               className="w-full p-2 border rounded"
+              international
+              defaultCountry="NG"
+              placeholder="Enter phone number"
+              value={phoneNumber}
+              onChange={setPhoneNumber}
             />
           </div>
           <button
             onClick={handleSavePhone}
             disabled={isSaving}
-            className="w-full bgg-main text-black py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50 mt-4"
+            className="w-full bgg-main bgg-hover text-black py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50 mt-4"
           >
             {isSaving ? 'Saving...' : 'Save Phone Number'}
           </button>
@@ -351,7 +367,8 @@ const SettingsPage = () => {
       {/* Notification Preferences Toggle */}
       <div>
         <h4 className="text-sm font-bold text-gray-800 mb-3">Account Settings</h4>
-        <div className="rounded-md border border-gray-400 h-14 flex justify-between items-center p-2">
+        <div className="rounded-md border border-gray-400 h-14 flex justify-between items-center p-2"
+         onClick={() => setShowNotificationEdit(prev => !prev)}>
           <div className="flex items-center space-x-3">
             <div className='h-10 w-10 bgg-main opacity-75 rounded-lg flex items-center justify-center'>
               <svg className="h-6 w-6 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -360,11 +377,11 @@ const SettingsPage = () => {
             </div>
             <h5 className="text-xs">Notification Preferences</h5>
           </div>
-          <button className='p-3' onClick={() => setShowNotificationEdit(prev => !prev)}>
+          <div className='p-3'>
             <svg className="h-5 w-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
             </svg>
-          </button>
+          </div>
         </div>
       </div>
 
@@ -390,7 +407,7 @@ const SettingsPage = () => {
           <button
             onClick={handleSaveNotifications}
             disabled={isSaving}
-            className="w-full bgg-main text-black py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50 mt-4"
+            className="w-full bgg-main bgg-hover text-black py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50 mt-4"
           >
             {isSaving ? 'Saving...' : 'Save Notifications'}
           </button>
@@ -399,7 +416,7 @@ const SettingsPage = () => {
         )}
 
       {/* Subscription Info */}
-      <div>
+      <div className="hidden">
         <h4 className="text-sm font-bold text-gray-800 mb-3">Subscription</h4>
         <div className="rounded-md border border-gray-400 h-14 flex justify-between items-center p-2">
           <div className="flex items-center space-x-3">
@@ -439,7 +456,7 @@ const SettingsPage = () => {
           </div>
           <button 
             onClick={() => setShowDeleteModal(true)}
-            className='p-2 text-sm text-red-600 hover:text-red-700'
+            className='p-2 text-xs text-red-600 hover:text-red-700'
           >
             Delete
           </button>
