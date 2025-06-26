@@ -27,7 +27,7 @@ const computeStatus = (expiryDate: string): string => {
   
   if (daysLeft < 0) {
     return "expired";
-  } else if (daysLeft <= 7) {
+  } else if (daysLeft <= 30) {
     return "expiring soon";
   } else {
     return "up to date";

@@ -24,6 +24,7 @@ export function DocumentSearch() {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowMobileInput(false);
         setResults([]);
+        setQuery('');
       }
     };
 

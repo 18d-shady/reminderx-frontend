@@ -92,6 +92,11 @@ const EditDocumentForm = () => {
     e.preventDefault();
     setError('');
 
+    if (reminderMethods.length === 0) {
+      setError('Please select at least one notification preference.');
+      return;
+    }
+
     const today = new Date();
     const expiry = new Date(expiryDate);
     const reminder = new Date(scheduleDate);
@@ -123,6 +128,11 @@ const EditDocumentForm = () => {
     formData.append('notes', notes);
     if (document) {
       formData.append('document', document);
+    }
+  
+    if (document && document.size > 20 * 1024 * 1024) {
+      setError('File size must be less than 20MB.');
+      return;
     }
   
     try {
@@ -218,10 +228,11 @@ const EditDocumentForm = () => {
           placeholder="Notes"
         />
 
-        <label className='text-gray-800 text-sm'>Upload Document</label>
+        <label className='text-gray-800 text-sm'>Upload Document <span className="text-gray-500 text-xs">(Allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, JPG, JPEG, PNG, GIF, BMP, SVG, WEBP. Max 20MB)</span></label>
         <input
           className="border border-gray-400 p-4 rounded-lg text-sm mb-2"
           type="file"
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.bmp,.svg,.webp,image/*"
           onChange={(e) => setDocument(e.target.files?.[0] || null)}
         />
         {particular.document_url && (

@@ -1,63 +1,51 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login, requestPasswordReset } from "@/lib/auth";
-import { getCookie } from "cookies-next";
-import Link from "next/link";
 import Image from "next/image";
+import { confirmPasswordReset } from "@/lib/auth";
+import Modal from "@/components/Modal";
 
-const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+export default function ResetPasswordPage() {
+  const [token, setToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  //const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const router = useRouter();
 
-  useEffect(() => {
-    const token = getCookie('reminderx_access');
-    if (token) {
-      router.replace("/dashboard"); // Redirect to the dashboard if already logged in
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent default form behavior
+
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
     }
-  }, [router]);
 
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+    setLoading(true);
     try {
-      // Call the login function from auth.ts
-      const data = await login(email, password); // Pass email and password to the login function
-
-      // Check if login was successful
-      if (data) {
-        router.push("/dashboard"); // Redirect to the dashboard after a successful login
-      } else {
-        setError("Invalid email or password");
-      }
-    } catch (error) {
-      // If there's an error during login, handle it here
-      setError("Invalid email or password");
-      console.error(error);
-    }
-  };
-
-  const sendResetEmail = async () => {
-    try {
-      if (!email) {
-        setError("Please enter your email first.");
-        return;
-      }
-
-      await requestPasswordReset(email);
-      router.push(`/reset-password`);
-      alert("If this email is registered, a reset link was sent.");
+      await confirmPasswordReset(token, newPassword);
+      setIsModalOpen(true);
+      setError('');
     } catch (err: any) {
       console.error(err);
-      alert("Something went wrong, verify your email has an account with us and try again.");
+      setError("Reset failed. Token may be invalid or expired, Or your old password is the same as ew one");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    router.push('/login');
+  };
+
+
   return (
+    
     <div className="min-h-screen h-screen flex justify-center bg-black font-mono relative overflow-hidden">
       <div className="absolute bgg-main rounded-full bottom-0 right-0 opacity-50 translate-y-[600px]
        translate-x-[800px] md:translate-x-[550px] md:translate-y-[550px]
@@ -79,54 +67,49 @@ const LoginPage = () => {
         </div>
 
         <div className="text-white xl:px-10">
-          <h4 className="text-center text-xl lg:text-2xl">Welcome Back, Buddy</h4>
-          <h1 className="text-xs text-center my-3 text-gray-400">Login to Access Your Account Now</h1>
+          <h1 className="text-center text-xl lg:text-2xl">Reset Your Password</h1>
 
           {error && <div className="text-red-500 text-sm mb-4 text-center">{error}</div>}
 
-          <form onSubmit={handleSubmit} className="space-y-4 my-5">
+          <form onSubmit={handleReset} className="space-y-4 my-5">
             <input
               type="text"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full mt-5 p-4 bg-white rounded-full text-sm text-gray-800"
-              placeholder="Email Address or Username"
+              placeholder="Enter token from email"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              className="w-full mt-3 p-4 bg-white rounded-full text-sm text-gray-800"
+              required
+            />
+            <input
+              type="password"
+              placeholder="New password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full mt-3 p-4 bg-white rounded-full text-sm text-gray-800"
+              required
+            />
+            <input
+              type="password"
+              placeholder="Confirm password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full mt-3 p-4 bg-white rounded-full text-sm text-gray-800"
               required
             />
 
-            <div>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full mt-5 p-4 bg-white rounded-full text-sm text-gray-800"
-                placeholder="Password"
-                required
-              />
-
-              <div className="w-full text-right mt-2 z-52">
-                 <button onClick={sendResetEmail} className="text-xs hover:underline"> Forgot Password? </button>
-              </div>
-            </div>
-
             <button
               type="submit"
+              disabled={loading}
               className="w-full bgg-main bgg-hover text-black p-4 rounded-xl hover:bg-blue-600 transition
                duration-200 mt-3 text-sm z-44"
             >
-              Log In
+              {loading ? 'Resetting...' : 'Reset Password'}
             </button>
+            
           </form>
         </div>
 
-        <div className="text-left mt-4 z-48">
-          <span className="text-xs text-gray-500">Don't have an account? </span>
-          <Link href="/signup" className="text-blue-500 hover:underline">
-            Sign Up
-          </Link>
-        </div>
+        <div className="h-10"></div>
 
         <div className=" md:hidden absolute -top-9 right-5">
           <svg width="100" height="114" viewBox="0 0 150 184" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -168,9 +151,17 @@ const LoginPage = () => {
         </div>
 
       </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        title="Password Reset Successful"
+      >
+        <p className="text-gray-700">Your password has been reset successfully. You will be redirected to login.</p>
+      </Modal>
+
       
     </div>
   );
-};
+}
 
-export default LoginPage;

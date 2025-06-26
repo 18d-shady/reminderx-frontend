@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { register } from "@/lib/auth";
+import { register, sendVerificationEmail, resendOtp } from "@/lib/auth";
 import { getCookie } from "cookies-next";
 import Link from "next/link";
 import Image from "next/image";
 import Loader from "@/components/Loader";
+import Modal from "@/components/Modal";
 
 const SignupPage = () => {
   const [username, setUsername] = useState("");
@@ -16,7 +17,20 @@ const SignupPage = () => {
   const [repassword, setRePassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [isOtpLoading, setIsOtpLoading] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [pendingUser, setPendingUser] = useState<{ username: string; email: string; password: string } | null>(null);
   const router = useRouter();
+  const otpInputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [otpTimer, setOtpTimer] = useState(600); // 10 minutes in seconds
+  const [resendCooldown, setResendCooldown] = useState(0); // 30s cooldown for resend
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const token = getCookie('reminderx_access');
@@ -24,6 +38,54 @@ const SignupPage = () => {
       router.replace("/dashboard");
     }
   }, [router]);
+
+  // Countdown timer for OTP
+  useEffect(() => {
+    if (!showOtpModal) return;
+    if (otpTimer <= 0) return;
+    const interval = setInterval(() => {
+      setOtpTimer((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [showOtpModal, otpTimer]);
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
+  // Reset timer when modal opens
+  useEffect(() => {
+    if (showOtpModal) setOtpTimer(600);
+  }, [showOtpModal]);
+
+  // Trap focus in modal
+  useEffect(() => {
+    if (!showOtpModal) return;
+    const focusable = modalRef.current?.querySelectorAll<HTMLElement>(
+      'input, button, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusable?.[0];
+    const last = focusable?.[focusable.length - 1];
+    function handleTab(e: KeyboardEvent) {
+      if (!focusable || focusable.length === 0) return;
+      if (e.key === "Tab") {
+        if (document.activeElement === last && !e.shiftKey) {
+          e.preventDefault();
+          first?.focus();
+        } else if (document.activeElement === first && e.shiftKey) {
+          e.preventDefault();
+          last?.focus();
+        }
+      }
+    }
+    document.addEventListener("keydown", handleTab);
+    return () => document.removeEventListener("keydown", handleTab);
+  }, [showOtpModal]);
 
   const isValidPassword = (password: string) => {
     const minLength = password.length >= 5;
@@ -40,7 +102,6 @@ const SignupPage = () => {
     setError(null);
     setIsLoading(true);
 
-    // Validate password match
     if (password !== repassword) {
       setError("Passwords do not match");
       setIsLoading(false);
@@ -48,21 +109,109 @@ const SignupPage = () => {
     }
 
     try {
-      const data = await register(username, email, password);
-      if (data) {
-        router.push("/dashboard");
-      }
+      // Send verification email (now also checks username)
+      await sendVerificationEmail(email, username);
+      setPendingUser({ username, email, password });
+      setShowOtpModal(true);
     } catch (error: any) {
-      console.error(error);
-      if (error.response?.data?.details) {
-        setError(error.response.data.details);
-      } else if (error.response?.data?.error) {
-        setError(error.response.data.error);
+      if (error.response?.data?.error) {
+        if (error.response.data.error.includes("Username")) {
+          setUsernameError(error.response.data.error);
+        } else if (error.response.data.error.includes("Email")) {
+          setEmailError(error.response.data.error);
+        } else {
+          setError(error.response.data.error);
+        }
       } else {
-        setError("Failed to create account. Please try again.");
+        setError("Failed to send verification email. Please try again.");
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleOtpInputChange = (index: number, value: string) => {
+    if (!/^[0-9]?$/.test(value)) return; // Only allow single digit
+    const newOtpDigits = [...otpDigits];
+    newOtpDigits[index] = value;
+    setOtpDigits(newOtpDigits);
+    if (value && index < 5) {
+      otpInputsRef.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
+      if (otpDigits[index] === "") {
+        if (index > 0) {
+          otpInputsRef.current[index - 1]?.focus();
+        }
+      } else {
+        const newOtpDigits = [...otpDigits];
+        newOtpDigits[index] = "";
+        setOtpDigits(newOtpDigits);
+      }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      otpInputsRef.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < 5) {
+      otpInputsRef.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData("Text").replace(/\D/g, "").slice(0, 6);
+    if (pasted.length === 6) {
+      setOtpDigits(pasted.split(""));
+      setTimeout(() => {
+        otpInputsRef.current[5]?.focus();
+      }, 0);
+    }
+    e.preventDefault();
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOtpError(null);
+    setEmailError(null);
+    setUsernameError(null);
+    setIsOtpLoading(true);
+    if (!pendingUser) return;
+    const otp = otpDigits.join("");
+    try {
+      // Directly register with OTP
+      const data = await register(pendingUser.username, pendingUser.email, pendingUser.password, otp);
+      setShowOtpModal(false);
+      router.push("/dashboard");
+    } catch (error: any) {
+      // Field-specific error handling
+      if (error.response?.data?.details) {
+        const details = error.response.data.details;
+        if (details.email) setEmailError(details.email[0]);
+        if (details.username) setUsernameError(details.username[0]);
+        setOtpError("Please fix the errors above.");
+      } else if (error.response?.data?.error) {
+        setOtpError(error.response.data.error);
+      } else if (error.response?.data?.message) {
+        setOtpError(error.response.data.message);
+      } else {
+        setOtpError("Invalid or expired OTP. Please try again.");
+      }
+    } finally {
+      setIsOtpLoading(false);
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setOtpError(null);
+    if (!pendingUser || resendCooldown > 0) return;
+    try {
+      await resendOtp(pendingUser.email, pendingUser.username);
+      setOtpError("A new OTP has been sent to your email.");
+      setOtpTimer(600); // Reset OTP timer
+      setResendCooldown(30); // 30s cooldown
+    } catch (error: any) {
+      setOtpError("Failed to resend OTP. Please try again.");
     }
   };
 
@@ -101,21 +250,29 @@ const SignupPage = () => {
               type="text"
               id="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setUsernameError(null);
+              }}
               className="w-full mt-3 p-4 bg-white rounded-full text-sm text-gray-800"
               placeholder="Enter your preferred Username"
               required
             />
+            {usernameError && <p className="text-red-500 text-xs mt-1">{usernameError}</p>}
 
             <input
               type="email"
               id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(null);
+              }}
               className="w-full mt-3 p-4 bg-white rounded-full text-sm text-gray-800"
               placeholder="Enter your unique email address"
               required
             />
+            {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
 
             <input
               type="password"
@@ -207,6 +364,64 @@ const SignupPage = () => {
           </svg>
         </div>
       </div>
+
+      <Modal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        title="Enter OTP"
+        size="sm"
+        footer={null}
+      >
+        <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="otp-modal-title">
+          <form onSubmit={handleOtpSubmit} className="space-y-4">
+            <div className="flex justify-center gap-2 mb-2">
+              {otpDigits.map((digit, idx) => (
+                <input
+                  key={idx}
+                  ref={el => { otpInputsRef.current[idx] = el; }}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={1}
+                  value={digit}
+                  aria-label={`OTP digit ${idx + 1}`}
+                  onChange={e => handleOtpInputChange(idx, e.target.value)}
+                  onKeyDown={e => handleOtpKeyDown(idx, e)}
+                  onPaste={idx === 0 ? handleOtpPaste : undefined}
+                  className="w-10 h-12 text-center text-2xl border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  autoFocus={idx === 0}
+                />
+              ))}
+            </div>
+            <div className="text-center text-xs text-gray-500 mb-2" aria-live="polite">
+              {otpTimer > 0 ? (
+                <>OTP expires in {Math.floor(otpTimer / 60).toString().padStart(2, '0')}:{(otpTimer % 60).toString().padStart(2, '0')}</>
+              ) : (
+                <span className="text-red-500">OTP expired. Please resend.</span>
+              )}
+            </div>
+            {otpError && <div className="text-red-500 text-xs text-center">{otpError}</div>}
+            <button
+              type="submit"
+              className="w-full bgg-main bgg-hover text-black p-3 rounded-xl hover:bg-blue-600 transition duration-200 text-sm"
+              disabled={isOtpLoading || isVerifyingOtp || otpDigits.some(d => d === "") || otpTimer === 0}
+              aria-disabled={isOtpLoading || isVerifyingOtp || otpDigits.some(d => d === "") || otpTimer === 0}
+            >
+              {isOtpLoading || isVerifyingOtp ? "Verifying..." : "Verify & Create Account"}
+            </button>
+            <button
+              type="button"
+              onClick={handleResendOtp}
+              className="w-full mt-2 text-blue-500 hover:underline text-xs"
+              disabled={isOtpLoading || resendCooldown > 0}
+              aria-disabled={isOtpLoading || resendCooldown > 0}
+              aria-label="Resend OTP"
+            >
+              {resendCooldown > 0 ? `Resend OTP (${resendCooldown}s)` : "Resend OTP"}
+            </button>
+          </form>
+        </div>
+      </Modal>
     </div>
   );
 };

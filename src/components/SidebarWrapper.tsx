@@ -7,7 +7,7 @@ const SidebarWrapper = () => {
   const pathname = usePathname();
 
   // Only show the Navbar if the user is on non-login/signup pages
-  const isAuthPage = pathname === "/login" || pathname === "/signup";
+  const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname === "/reset-password";
 
   return (
     <>

@@ -24,6 +24,14 @@ const Dashboard = () => {
   const expired = documents.filter(doc => doc.status === "expired").length;
   const normal = documents.filter(doc => doc.status === "up to date").length;
 
+  // New: count of documents expiring within 7 days
+  const expiringWithin7 = documents.filter(doc => {
+    const expiry = new Date(doc.expiry_date);
+    const today = new Date();
+    const daysLeft = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return doc.status === "expiring soon" && daysLeft <= 7 && daysLeft >= 0;
+  }).length;
+
   if (loading) {
     return <Loader />;
   }
@@ -35,7 +43,7 @@ const Dashboard = () => {
         <div className="overflow-x-auto xl:overflow-x-visible md:me-5">
           <div className="flex w-max xl:w-full space-x-5 xl:px-3 xl:justify-between">
             <DashboardDocuments type="total" count={documents.length} action={expired} />
-            <DashboardDocuments type="expired" count={expiring} action={expired} />
+            <DashboardDocuments type="expired" count={expiring} action={expiringWithin7} />
             <DashboardDocuments type="normal" count={normal} action={0} />
           </div>
         </div>
