@@ -38,34 +38,35 @@ const NotificationPage = () => {
     return groups;
   };
 
-  if (loading) return <Loader />;
-
   const groupedNotifications = groupNotificationsByDate(notifications);
 
   return (
-    <div className="p-4 overflow-x-hidden font-mono">
-      {notifications.length === 0 ? (
-        <p>No notifications available.</p>
-      ) : (
-        <div className="w-full max-w-full flex flex-col space-y-6">
-          {Object.entries(groupedNotifications).map(([date, notifs]) => (
-            <div key={date} className="space-y-2">
-              <h3 className="text-xs font-semibold text-gray-600 ">{date}</h3>
-              <div className="space-y-2">
-                {notifs.map((notif) => (
-                  <NotificationItem 
-                    key={notif.id} 
-                    title={notif.particular_title} 
-                    message={notif.message} 
-                    time={notif.created_at} 
-                  />
-                ))}
+    <>
+      <Loader isOpen={loading} />
+      <div className="p-4 overflow-x-hidden font-mono">
+        {notifications.length === 0 ? (
+          <p>No notifications available.</p>
+        ) : (
+          <div className="w-full max-w-full flex flex-col space-y-6">
+            {Object.entries(groupedNotifications).map(([date, notifs]) => (
+              <div key={date} className="space-y-2">
+                <h3 className="text-xs font-semibold text-gray-600 ">{date}</h3>
+                <div className="space-y-2">
+                  {notifs.map((notif) => (
+                    <NotificationItem 
+                      key={notif.id} 
+                      title={notif.particular_title} 
+                      message={notif.message} 
+                      time={notif.created_at} 
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

@@ -171,160 +171,159 @@ const EditDocumentForm = () => {
 
   const enabledMethods = getEnabledMethods();
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
   if (!particular) {
     return <div className="p-6 text-center text-red-500">Document not found</div>;
   }
 
   return (
-    <div className="p-6 max-w-xl mx-auto bg-white shadow rounded-lg font-mono">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2 text-gray-800">
-        <label className='text-gray-800 text-sm'>Document Name<span className="text-red-700">*</span></label>
-        <input
-          className="border border-gray-400 p-4 rounded-full text-sm mb-2"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter Document Name"
-          required
-        />
+    <>
+      <Loader isOpen={isLoading} />
+      <div className="p-6 max-w-xl mx-auto bg-white shadow rounded-lg font-mono">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2 text-gray-800">
+          <label className='text-gray-800 text-sm'>Document Name<span className="text-red-700">*</span></label>
+          <input
+            className="border border-gray-400 p-4 rounded-full text-sm mb-2"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter Document Name"
+            required
+          />
 
-        <label className='text-gray-800 text-sm'>Document Type<span className="text-red-700">*</span></label>
-        <select
-          className="border border-gray-400 p-4 rounded-full text-sm mb-2"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          <option value="vehicle">Vehicle</option>
-          <option value="travels">Travels</option>
-          <option value="personal">Personal</option>
-          <option value="work">Work</option>
-          <option value="professional">Professional</option>
-          <option value="household">Household</option>
-          <option value="finance">Finance</option>
-          <option value="health">Health</option>
-          <option value="social">Social</option>
-          <option value="education">Education</option>
-          <option value="other">Other</option>
-        </select>
+          <label className='text-gray-800 text-sm'>Document Type<span className="text-red-700">*</span></label>
+          <select
+            className="border border-gray-400 p-4 rounded-full text-sm mb-2"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="vehicle">Vehicle</option>
+            <option value="travels">Travels</option>
+            <option value="personal">Personal</option>
+            <option value="work">Work</option>
+            <option value="professional">Professional</option>
+            <option value="household">Household</option>
+            <option value="finance">Finance</option>
+            <option value="health">Health</option>
+            <option value="social">Social</option>
+            <option value="education">Education</option>
+            <option value="other">Other</option>
+          </select>
 
-        <label className='text-gray-800 text-sm'>Expiry Date<span className="text-red-700">*</span></label>
-        <input
-          className="border border-gray-400 p-4 rounded-full text-sm mb-2"
-          type="date"
-          value={expiryDate}
-          onChange={(e) => setExpiryDate(e.target.value)}
-          required
-        />
-        
-        <label className='text-gray-800 text-sm'>Notes</label>
-        <textarea
-          className="border border-gray-400 p-4 rounded-lg text-sm mb-2"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Notes"
-        />
+          <label className='text-gray-800 text-sm'>Expiry Date<span className="text-red-700">*</span></label>
+          <input
+            className="border border-gray-400 p-4 rounded-full text-sm mb-2"
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
+            required
+          />
+          
+          <label className='text-gray-800 text-sm'>Notes</label>
+          <textarea
+            className="border border-gray-400 p-4 rounded-lg text-sm mb-2"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Notes"
+          />
 
-        <label className='text-gray-800 text-sm'>Upload Document <span className="text-gray-500 text-xs">(Allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, JPG, JPEG, PNG, GIF, BMP, SVG, WEBP. Max 20MB)</span></label>
-        <input
-          className="border border-gray-400 p-4 rounded-lg text-sm mb-2"
-          type="file"
-          accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.bmp,.svg,.webp,image/*"
-          onChange={(e) => setDocument(e.target.files?.[0] || null)}
-        />
-        {particular.document_url && (
-          <p className="text-sm text-gray-600 mb-2">
-            Current document: <a href={particular.document_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View</a>
-          </p>
-        )}
+          <label className='text-gray-800 text-sm'>Upload Document <span className="text-gray-500 text-xs">(Allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, JPG, JPEG, PNG, GIF, BMP, SVG, WEBP. Max 20MB)</span></label>
+          <input
+            className="border border-gray-400 p-4 rounded-lg text-sm mb-2"
+            type="file"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.bmp,.svg,.webp,image/*"
+            onChange={(e) => setDocument(e.target.files?.[0] || null)}
+          />
+          {particular.document_url && (
+            <p className="text-sm text-gray-600 mb-2">
+              Current document: <a href={particular.document_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View</a>
+            </p>
+          )}
 
-        <h2 className="text-gray-800 font-semibold mt-6">Reminder Settings</h2>
-        
-        <label className='text-gray-800 text-sm'>Reminder Date<span className="text-red-700">*</span></label>
-        <small className="text-gray-500 mb-1 block">
-          e.g., 10/06/2025 at 09:30 AM
-        </small>
-        <input
-          className="border border-gray-400 p-4 rounded-full text-sm mb-2"
-          type="datetime-local"
-          value={scheduleDate}
-          onChange={(e) => setScheduleDate(e.target.value)}
-          required
-        />
+          <h2 className="text-gray-800 font-semibold mt-6">Reminder Settings</h2>
+          
+          <label className='text-gray-800 text-sm'>Reminder Date<span className="text-red-700">*</span></label>
+          <small className="text-gray-500 mb-1 block">
+            e.g., 10/06/2025 at 09:30 AM
+          </small>
+          <input
+            className="border border-gray-400 p-4 rounded-full text-sm mb-2"
+            type="datetime-local"
+            value={scheduleDate}
+            onChange={(e) => setScheduleDate(e.target.value)}
+            required
+          />
 
-        <label className='text-gray-800 text-sm'>Notification Preference<span className="text-red-700">*</span></label>
-        <div className="flex flex-col gap-2">
-          {['email', 'sms', 'push', 'whatsapp'].map(method => {
-            const isEnabled = enabledMethods.includes(method);
-            return (
-              <label 
-                key={method} 
-                className={`flex items-center gap-2 ${!isEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <input
-                  type="checkbox"
-                  value={method}
-                  checked={reminderMethods.includes(method)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setReminderMethods([...reminderMethods, method]);
-                    } else {
-                      setReminderMethods(reminderMethods.filter(m => m !== method));
-                    }
-                  }}
-                  disabled={!isEnabled}
-                />
-                {method.charAt(0).toUpperCase() + method.slice(1)}
-                {!isEnabled && <span className="text-sm text-gray-500">(Disabled in profile)</span>}
-              </label>
-            );
-          })}
-        </div>
+          <label className='text-gray-800 text-sm'>Notification Preference<span className="text-red-700">*</span></label>
+          <div className="flex flex-col gap-2">
+            {['email', 'sms', 'push', 'whatsapp'].map(method => {
+              const isEnabled = enabledMethods.includes(method);
+              return (
+                <label 
+                  key={method} 
+                  className={`flex items-center gap-2 ${!isEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <input
+                    type="checkbox"
+                    value={method}
+                    checked={reminderMethods.includes(method)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setReminderMethods([...reminderMethods, method]);
+                      } else {
+                        setReminderMethods(reminderMethods.filter(m => m !== method));
+                      }
+                    }}
+                    disabled={!isEnabled}
+                  />
+                  {method.charAt(0).toUpperCase() + method.slice(1)}
+                  {!isEnabled && <span className="text-sm text-gray-500">(Disabled in profile)</span>}
+                </label>
+              );
+            })}
+          </div>
 
-        <label className='text-gray-800 text-sm'>Recurring Reminder<span className="text-red-700">*</span></label>
-        <select
-          className="border border-gray-400 p-4 rounded-full text-sm mb-2"
-          value={recurrence}
-          onChange={(e) => setRecurrence(e.target.value)}
-        >
-          <option value="none">None</option>
-          <option value="daily">Daily</option>
-          <option value="every_2_days">Every 2 Days</option>
-        </select>
+          <label className='text-gray-800 text-sm'>Recurring Reminder<span className="text-red-700">*</span></label>
+          <select
+            className="border border-gray-400 p-4 rounded-full text-sm mb-2"
+            value={recurrence}
+            onChange={(e) => setRecurrence(e.target.value)}
+          >
+            <option value="none">None</option>
+            <option value="daily">Daily</option>
+            <option value="every_2_days">Every 2 Days</option>
+          </select>
 
-        <label className='text-gray-800 text-sm'>Start Day Before Expiry Date</label>
-        <input
-          className={`border border-gray-400 p-4 rounded-full text-sm mb-6 ${recurrence === 'none' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-          type="number"
-          value={startDaysBefore}
-          onChange={(e) => {
-            const value = parseInt(e.target.value);
-            if (value > 7) {
-              setStartDaysBefore(7);
-            } else if (value < 1) {
-              setStartDaysBefore(1);
-            } else {
-              setStartDaysBefore(value);
-            }
-          }}
-          min={1}
-          max={7}
-          disabled={recurrence === 'none'}
-        />
+          <label className='text-gray-800 text-sm'>Start Day Before Expiry Date</label>
+          <input
+            className={`border border-gray-400 p-4 rounded-full text-sm mb-6 ${recurrence === 'none' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+            type="number"
+            value={startDaysBefore}
+            onChange={(e) => {
+              const value = parseInt(e.target.value);
+              if (value > 7) {
+                setStartDaysBefore(7);
+              } else if (value < 1) {
+                setStartDaysBefore(1);
+              } else {
+                setStartDaysBefore(value);
+              }
+            }}
+            min={1}
+            max={7}
+            disabled={recurrence === 'none'}
+          />
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-        
-        <button
-          type="submit"
-          className="bgg-main bgg-hover text-white p-5 rounded-3xl"
-        >
-          Update Document
-        </button>
-      </form>
-    </div>
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+          
+          <button
+            type="submit"
+            className="bgg-main bgg-hover text-white p-5 rounded-3xl"
+          >
+            Update Document
+          </button>
+        </form>
+      </div>
+    </>
   );
 };
 

@@ -34,6 +34,7 @@ const DocumentDetails = () => {
   const [particular, setParticular] = useState<Particular | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isRenewModalOpen, setIsRenewModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchParticular = async () => {
@@ -76,6 +77,26 @@ const DocumentDetails = () => {
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
     </svg>
     );
+
+    // Renewal links by category
+    const renewalLinks: Record<string, { label: string; url: string }[]> = {
+      "driver": [
+        { label: "Renew Driver's License (Nigerian Government)", url: "https://www.nigeriadriverslicence.org/dlApplication/renew" },
+        { label: "FRSC Driver's License Portal", url: "https://www.nigeriadriverslicence.org/" },
+      ],
+      "vehicle": [
+        { label: "Renew Vehicle License (Lagos State)", url: "https://www.lsmvaapvs.org/" },
+        { label: "Renew Vehicle License (Nigerian Government)", url: "https://www.nigeriavehiclelicence.com/" },
+      ],
+      "international passport": [
+        { label: "Renew International Passport", url: "https://portal.immigration.gov.ng/" },
+      ],
+      "default": [
+        { label: "General Renewal Portal", url: "https://www.nigeria.gov.ng/" },
+      ],
+    };
+    const categoryKey = (particular.category || '').toLowerCase();
+    const links = renewalLinks[categoryKey] || renewalLinks['default'];
 
     return(
       <div className="flex flex-col space-y-5 font-mono">
@@ -135,11 +156,15 @@ const DocumentDetails = () => {
         <div className='flex flex-row justify-between items-center'>
           <h4 className='text-sm font-semibold'>Document Details</h4>
           {isExpiringSoon ? (
-            <button className='bgg-main bgg-hover text-white px-3 py-1 text-sm rounded-md'>Renew</button>
+            <button
+              className='bgg-main bgg-hover text-white px-3 py-1 text-sm rounded-md'
+              onClick={() => setIsRenewModalOpen(true)}
+            >
+              Renew
+            </button>
           ):(
             <span></span>
-          )
-          }
+          )}
         </div>
 
         <div className="border border-gray-300 p-4 rounded-lg">
@@ -243,6 +268,32 @@ const DocumentDetails = () => {
           <p className="text-sm text-gray-600">
             Are you sure you want to delete this document? This action cannot be undone.
           </p>
+        </Modal>
+
+        <Modal
+          isOpen={isRenewModalOpen}
+          onClose={() => setIsRenewModalOpen(false)}
+          title={`Renew ${particular.title}`}
+          size="sm"
+          footer={null}
+        >
+          <div className="space-y-4">
+            <h4 className="text-sm font-semibold">Choose a renewal option:</h4>
+            <ul className="space-y-2">
+              {links.map((link) => (
+                <li key={link.url}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </Modal>
       </div>
     );

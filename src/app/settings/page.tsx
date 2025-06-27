@@ -204,9 +204,8 @@ const SettingsPage = () => {
     }
   };
 
-  if (!user) {
-    return <Loader />;
-  }
+  // Always render Loader, controlled by !user
+  <Loader isOpen={!user} />
 
   return (
     <div className="p-4 w-full overflow-x-hidden font-mono flex flex-col space-y-7">
