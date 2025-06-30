@@ -13,7 +13,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ title, message, tim
   };
 
   return (
-    <div className='w-full h-16 bg-white text-gray-700 border border-gray-300 rounded-md p-3 flex flex-row space-x-3 items-center'>
+    <div className='w-full h-16 text-gray-700 border border-gray-300 rounded-md p-3 flex flex-row space-x-3 items-center'>
       <div className='h-5 w-5 bg-red-200 rounded-full'></div>
 
       <div className='flex flex-col justify-between w-full'>

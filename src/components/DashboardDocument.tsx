@@ -32,7 +32,7 @@ const DashboardDocuments: React.FC<DashboardDocumentsProps> = ({ type, count, ac
   }
 
   return(
-    <div className='w-72 h-36 bg-white text-gray-700 border border-gray-300 rounded-md shadow-md p-4
+    <div className='w-72 h-36 text-gray-700 border border-gray-300 rounded-md shadow-md p-4
     flex flex-row justify-between'>
       <div className="flex flex-col justify-between">
         <h5 className="text-xs">{message}</h5>

@@ -68,7 +68,7 @@ const Navbar = () => {
       </div>
 
       {/* Mobile navbar */}
-      <div className="md:hidden p-4 flex justify-between items-center">
+      <div className="md:hidden p-3 md:p-4 flex justify-between items-center">
         <div className="p-1 flex space-x-3 items-center">
           <div className="h-10 w-10 bg-gray-300 rounded-full relative overflow-hidden 
           cursor-pointer hover:opacity-80 transition-opacity">

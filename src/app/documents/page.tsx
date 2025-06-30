@@ -56,7 +56,7 @@ const DocumentPage = () => {
             key={tab}
             onClick={() => setSelectedTab(tab)}
             className={`px-4 py-2 rounded-full border text-vvs ${
-              selectedTab === tab ? "bgg-main bgg-hover text-white" : "bg-white border-gray-300 text-gray-700"
+              selectedTab === tab ? "bgg-main bgg-hover text-white" : "border-gray-300 text-gray-700"
             }`}
           >
             {tab}

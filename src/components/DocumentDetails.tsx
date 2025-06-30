@@ -183,7 +183,7 @@ const DocumentDetails = () => {
           {particular.reminders.length > 0 ? (
             <div className='space-y-4'>
               {particular.reminders.map((reminder) => (
-                <div className="bg-white rounded-lg shadow p-1">
+                <div className="rounded-lg shadow p-1">
                   <div key={reminder.id} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h3 className="text-xs font-semibold text-gray-600 mb-1">Reminder Date</h3>

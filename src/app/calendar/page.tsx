@@ -141,7 +141,7 @@ const CalendarPage = () => {
           {events
             .sort((a, b) => a.date.getTime() - b.date.getTime())
             .map((event, i) => (
-            <div key={i} className="bg-white rounded-lg shadow p-4">
+            <div key={i} className=" rounded-lg shadow p-4">
               <div className="flex flex-col">
                 <h3 className="text-lg font-bold text-gray-800">{event.title}</h3>
                 <p className="text-sm text-gray-600 mt-1">

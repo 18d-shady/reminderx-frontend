@@ -38,7 +38,7 @@ const DashboardTable = ({ data }: { data: UIData[] }) => {
       : data.filter((item) => item.status === selectedTab.toLowerCase());
 
   return (
-    <div className="w-full p-5">
+    <div className="w-full p-3 md:p-5">
       {/* Tabs */}
       <div className="flex flex-row space-x-4 mb-5 w-max">
         {TABS.map((tab) => (
@@ -46,7 +46,7 @@ const DashboardTable = ({ data }: { data: UIData[] }) => {
             key={tab}
             onClick={() => setSelectedTab(tab)}
             className={`px-6 py-3 rounded-lg border border-gray-200 ${
-              selectedTab === tab ? "bgg-main bgg-hover" : "bg-white"
+              selectedTab === tab ? "bgg-main bgg-hover" : ""
             }`}
           >
             {tab}

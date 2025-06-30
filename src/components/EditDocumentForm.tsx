@@ -178,7 +178,7 @@ const EditDocumentForm = () => {
   return (
     <>
       <Loader isOpen={isLoading} />
-      <div className="p-6 max-w-xl mx-auto bg-white shadow rounded-lg font-mono">
+      <div className="p-6 max-w-xl mx-auto shadow rounded-lg font-mono">
         <form onSubmit={handleSubmit} className="flex flex-col gap-2 text-gray-800">
           <label className='text-gray-800 text-sm'>Document Name<span className="text-red-700">*</span></label>
           <input

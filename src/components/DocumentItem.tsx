@@ -32,8 +32,8 @@ const DocumentItem: React.FC<DocumentItemProps> = ({ id, name, expiry_date, stat
   const statusColor = status === "up to date" ? "bg-green-200" : "bg-red-200";
 
   return (
-    <div className="w-full bg-white text-gray-700 border border-gray-300 rounded-md p-3">
-      <div className="flex flex-row justify-between items-center">
+    <div className="w-full text-gray-700 border border-gray-300 rounded-md p-3">
+      <Link href={`/documents/${id}`} className="flex flex-row justify-between items-center">
         <div className="flex flex-row">
           <div className="w-12 h-12 rounded overflow-hidden flex items-center justify-center">
             {picture ? (
@@ -90,12 +90,12 @@ const DocumentItem: React.FC<DocumentItemProps> = ({ id, name, expiry_date, stat
 
           {showActions && (
             <div className="absolute right-0 mt-2 w-24 bg-white border border-gray-200 shadow-lg rounded z-10">
-              <Link href={`/documents/${id}`} className="block px-4 py-2 text-sm hover:bg-gray-100">View</Link>
+              {/*<Link href={`/documents/${id}`} className="block px-4 py-2 text-sm hover:bg-gray-100">View</Link>*/}
               <Link href={`/documents/${id}/edit`} className="block px-4 py-2 text-sm hover:bg-gray-100">Edit</Link>
             </div>
           )}
         </div>
-      </div>
+      </Link>
     </div>
   );
 };

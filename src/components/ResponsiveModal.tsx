@@ -34,7 +34,7 @@ const ResponsiveModal = ({ title, children, onClose }: ResponsiveModalProps) => 
   if (!isDesktop) {
     // Full-screen mobile layout
     return (
-      <div className="min-h-screen bg-white p-4">
+      <div className="min-h-screen p-4">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl font-bold">{title}</h1>
           <button onClick={handleClose} className="text-gray-500">✕</button>
