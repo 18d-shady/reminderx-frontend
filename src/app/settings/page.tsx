@@ -245,7 +245,7 @@ const SettingsPage = () => {
               </div>
               
               {showImageOptions && (
-                <div ref={imageOptionsRef} className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 w-32 z-10">
+                <div ref={imageOptionsRef} className="absolute top-full left-0 mt-2 bg-white dark:bg-gray-950 rounded-lg shadow-lg border border-gray-200 py-2 w-32 z-10">
                   <button
                     onClick={handleImageEdit}
                     className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"

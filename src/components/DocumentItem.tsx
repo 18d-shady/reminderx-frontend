@@ -33,8 +33,8 @@ const DocumentItem: React.FC<DocumentItemProps> = ({ id, name, expiry_date, stat
 
   return (
     <div className="w-full text-gray-700 border border-gray-300 rounded-md p-3">
-      <Link href={`/documents/${id}`} className="flex flex-row justify-between items-center">
-        <div className="flex flex-row">
+      <div className="flex flex-row justify-between items-center">
+        <Link href={`/documents/${id}`} className="flex flex-row">
           <div className="w-12 h-12 rounded overflow-hidden flex items-center justify-center">
             {picture ? (
               (() => {
@@ -74,7 +74,7 @@ const DocumentItem: React.FC<DocumentItemProps> = ({ id, name, expiry_date, stat
               Expires: {expiry_date.toDateString()}
             </p>
           </div>
-        </div>
+        </Link>
 
         <div className="relative" ref={actionsRef}>
           <button
@@ -95,7 +95,7 @@ const DocumentItem: React.FC<DocumentItemProps> = ({ id, name, expiry_date, stat
             </div>
           )}
         </div>
-      </Link>
+      </div>
     </div>
   );
 };

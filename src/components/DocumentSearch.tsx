@@ -55,7 +55,7 @@ export function DocumentSearch() {
 
   const renderResults = () => (
     results.length > 0 && (
-      <ul className="absolute bg-white border rounded w-full mt-1 z-10 shadow">
+      <ul className="absolute border rounded w-full mt-1 z-10 shadow">
         {results.map((doc) => (
           <li key={doc.id} className="hover:bg-gray-100 text-sm">
             <Link 
@@ -89,7 +89,7 @@ export function DocumentSearch() {
         </button>
 
         {showMobileInput && (
-          <div className="absolute -mx-24 mt-2 w-48 bg-white border rounded shadow z-20">
+          <div className="absolute -mx-24 mt-2 w-48 border rounded shadow z-20">
             <input
               ref={inputRef}
               type="text"
