@@ -137,14 +137,14 @@ const DocumentDetails = () => {
             </div>
 
             <div className="flex flex-col justify-between">
-              <h4 className="text-sm font-semibold">{particular.title}</h4>
+              <h4 className="text-sm text-gray-800 dark:text-gray-300 font-semibold">{particular.title}</h4>
               <h5 className="text-gray-700 text-xs">{particular.category}</h5>
             </div>
           </div>
 
           <div className={`flex mt-5 flex-row justify-between p-3 rounded-md ${bgColor}`}>
             <div className="flex flex-col justify-between">
-              <h4 className="font-semibold text-sm">Expires In</h4>
+              <h4 className="font-semibold text-sm text-gray-800 dark:text-gray-300">Expires In</h4>
               <h5 className="text-gray-700 text-xs">
                 {daysLeft} days ({particular.expiry_date})
               </h5>
@@ -154,7 +154,7 @@ const DocumentDetails = () => {
         </div>
 
         <div className='flex flex-row justify-between items-center'>
-          <h4 className='text-sm font-semibold'>Document Details</h4>
+          <h4 className='text-sm font-semibold text-gray-800 dark:text-gray-300'>Document Details</h4>
           {isExpiringSoon ? (
             <button
               className='bgg-main bgg-hover text-white px-3 py-1 text-sm rounded-md'
@@ -167,7 +167,7 @@ const DocumentDetails = () => {
           )}
         </div>
 
-        <div className="border border-gray-300 p-4 rounded-lg">
+        <div className="border border-gray-300 p-4 rounded-lg text-gray-800 dark:text-gray-300">
           <div className='flex flex-row justify-between text-sm my-1'>
             <h4>Document Name</h4>
             <h4>{particular.title}</h4>
@@ -178,7 +178,7 @@ const DocumentDetails = () => {
             <h4>{particular.expiry_date}</h4>
           </div>
 
-          <h4 className='font-semibold text-sm mt-4 mb-2'>Reminder Settings:</h4>
+          <h4 className='font-semibold text-sm mt-4 mb-2 text-gray-800 dark:text-gray-300'>Reminder Settings:</h4>
 
           {particular.reminders.length > 0 ? (
             <div className='space-y-4'>
@@ -193,8 +193,8 @@ const DocumentDetails = () => {
                     </div>
                     
                     <div>
-                      <h3 className="text-xs font-semibold text-gray-600 mb-1">Recurrence</h3>
-                      <p className="text-gray-800 text-sm">
+                      <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Recurrence</h3>
+                      <p className="text-gray-800 dark:text-gray-300 text-sm">
                         {reminder.recurrence === 'none' ? 'No recurrence' : 
                         reminder.recurrence === 'daily' ? 'Daily' : 
                         reminder.recurrence === 'every_2_days' ? 'Every 2 days' : 
@@ -203,15 +203,15 @@ const DocumentDetails = () => {
                     </div>
 
                     <div>
-                      <h3 className="text-xs font-semibold text-gray-600 mb-1">Start Days Before Expiry</h3>
-                      <p className="text-gray-800 text-sm">
+                      <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Start Days Before Expiry</h3>
+                      <p className="text-gray-800 dark:text-gray-300 text-sm">
                         {reminder.recurrence === 'none' ? 'N/A' : 
                         `${reminder.start_days_before} days`}
                       </p>
                     </div>
 
                     <div>
-                      <h3 className="text-xs font-semibold text-gray-600 mb-1">Notification Methods</h3>
+                      <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Notification Methods</h3>
                       <div className="flex flex-wrap gap-2 text-sm">
                         {reminder.reminder_methods.map((method) => (
                           <span 
