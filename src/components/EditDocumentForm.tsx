@@ -172,7 +172,7 @@ const EditDocumentForm = () => {
   const enabledMethods = getEnabledMethods();
 
   if (!particular) {
-    return <div className="p-6 text-center text-red-500">Document not found</div>;
+    return <div className="p-6 text-center text-gray-500">Getting document ready...</div>;
   }
 
   return (
