@@ -36,7 +36,7 @@ const ResponsiveModal = ({ title, children, onClose }: ResponsiveModalProps) => 
     return (
       <div className="min-h-screen p-4">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold">{title}</h1>
+          <h1 className="text-xl font-bold text-black">{title}</h1>
           <button onClick={handleClose} className="text-gray-500">✕</button>
         </div>
         {children}

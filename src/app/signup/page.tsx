@@ -372,7 +372,7 @@ const SignupPage = () => {
         >
           <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="otp-modal-title">
             <form onSubmit={handleOtpSubmit} className="space-y-4">
-              <div className="flex justify-center gap-2 mb-2 text-gray-800 dark:text-gray-300">
+              <div className="flex justify-center gap-2 mb-2 text-gray-800 dark:text-gray-500">
                 {otpDigits.map((digit, idx) => (
                   <input
                     key={idx}
