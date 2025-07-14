@@ -122,15 +122,20 @@ const Sidebar = () => {
       
       </div>
 
-      <button onClick={handleLogout} className="text-white px-4 py-5 hover:text-gray-400 transition
-       flex flex-row space-x-2 item-center ">
-        <svg className="h-5 w-5"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z"/>
-          <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
-          <path d="M7 12h14l-3 -3m0 6l3 -3" />
-        </svg>
-        Log Out
-      </button>
+      <div>
+        <button onClick={handleLogout} className="text-white px-4 py-5 hover:text-gray-400 transition
+        flex flex-row space-x-2 item-center ">
+          <svg className="h-5 w-5"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+            <path d="M7 12h14l-3 -3m0 6l3 -3" />
+          </svg>
+          Log Out
+        </button>
+
+        <Link href="/privacy-policy" className=" ms-2 text-xs text-gray-200 hover:text-gray-400 mb-2"> Privacy </Link>
+        <p className="text-xs text-gray-400 mb-2 ms-2">@2025 All rights reserved</p>
+      </div>
     </nav>
   );
 };
