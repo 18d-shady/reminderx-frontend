@@ -8,7 +8,7 @@ const NavbarWrapper = () => {
   const pathname = usePathname(); // This is a client-side hook
 
   // Only show the Navbar if the user is on non-login/signup pages
-  const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname === "/reset-password";
+  const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname === "/reset-password" || pathname === "/privacy-policy";
 
   return (
     <>
