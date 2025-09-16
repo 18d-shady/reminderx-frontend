@@ -20,8 +20,11 @@
     "react": "^19.0.0",
     "react-calendar": "^5.1.0",
     "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.5.2",
-    "react-phone-number-input": "^3.4.12"
+    "react-phone-number-input": "^3.4.12",
+    "xlsx": "^0.18.5",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

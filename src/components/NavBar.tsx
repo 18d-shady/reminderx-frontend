@@ -9,12 +9,16 @@ import DynamicNavHeader from "./DynamicNavHeader";
 import { fetchCurrentUser } from '@/lib/user';
 import type CurrentUser from "@/lib/user";
 import { DocumentSearch } from "./DocumentSearch";
+import AddReminderButton from "./AddReminderButton";
+import { useSubscription } from "@/lib/useSubscription";
+
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<CurrentUser | null>(null);
+  //const { plan } = useSubscription();
 
   // Handle mobile menu toggle
   const toggleMobileMenu = () => {
@@ -53,16 +57,19 @@ const Navbar = () => {
 
         <div className="hidden lg:flex flex-row items-center lg:space-x-3 xl:space-x-5">
           <DocumentSearch />
-
-          <Link  href="/documents/new" className="px-4 py-3 text-xs text-white bgg-main bgg-hover rounded-xl "> +Add Document</Link>
+          <AddReminderButton />
+          {/*<Link  href="/documents/new" className="px-4 py-3 text-xs text-white bgg-main bgg-hover rounded-xl "> +Add Reminders</Link>*/}
         </div>
 
         <div className="lg:hidden flex flex-row items-center space-x-5">
           <DocumentSearch />
+          <AddReminderButton />
 
+          {/* 
           <Link  href="/documents/new" className="p-2 text-white bgg-main bgg-hover rounded-full ">
             <svg className="h-5 w-5"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <line x1="12" y1="5" x2="12" y2="19" />  <line x1="5" y1="12" x2="19" y2="12" /></svg>
           </Link>
+          */}
         </div>
         
       </div>
@@ -90,10 +97,7 @@ const Navbar = () => {
 
         <div className="p-1 flex space-x-3 items-center">
           <DocumentSearch />
-
-          <Link  href="/documents/new" className="p-2 text-white bgg-main bgg-hover rounded-full ">
-            <svg className="h-5 w-5"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <line x1="12" y1="5" x2="12" y2="19" />  <line x1="5" y1="12" x2="19" y2="12" /></svg>
-          </Link>
+          <AddReminderButton />
 
           <button onClick={toggleMobileMenu} className="md:hidden text-gray-800">
             <svg className="h-9 w-9"  fill="none" viewBox="0 0 24 24" stroke="currentColor">

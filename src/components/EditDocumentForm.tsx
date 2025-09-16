@@ -6,6 +6,7 @@ import { updateParticular, updateReminder, fetchCurrentUser } from '@/lib/user';
 import CurrentUser from '@/lib/user';
 import api from '@/lib/api';
 import Loader from './Loader';
+import { se } from 'date-fns/locale';
 
 type Reminder = {
   id: number;
@@ -42,6 +43,7 @@ const EditDocumentForm = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<CurrentUser | null>(null);
+  const [scheduleOption, setScheduleOption] = useState(''); 
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -74,9 +76,25 @@ const EditDocumentForm = () => {
           setReminderMethods(reminder.reminder_methods || []);
           setRecurrence(reminder.recurrence);
           setStartDaysBefore(reminder.start_days_before);
+
+          // Auto-detect if reminder is exactly 1 or 2 weeks before expiry
+          if (data.expiry_date) {
+            const expiryDateObj = new Date(data.expiry_date);
+            const diffDays = Math.round(
+              (expiryDateObj.getTime() - scheduledDate.getTime()) / (1000 * 60 * 60 * 24)
+            );
+
+            if (diffDays === 7) {
+              setScheduleOption("1_week");
+            } else if (diffDays === 14) {
+              setScheduleOption("2_weeks");
+            } else {
+              setScheduleOption("custom");
+            }
+          }
         }
       } catch (err) {
-        setError('Failed to fetch document details');
+        setError('Failed to fetch reminder details');
         console.error(err);
       } finally {
         setIsLoading(false);
@@ -155,7 +173,7 @@ const EditDocumentForm = () => {
       router.push('/documents');
     } catch (err: any) {
       console.error(err);
-      setError(err?.response?.data?.detail || 'Failed to update document');
+      setError(err?.response?.data?.detail || 'Failed to update reminder.');
     }
   };
 
@@ -171,8 +189,24 @@ const EditDocumentForm = () => {
 
   const enabledMethods = getEnabledMethods();
 
+  // Convert Date → datetime-local format (yyyy-MM-ddTHH:mm)
+  function toDatetimeLocalString(date: Date): string {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return (
+      date.getFullYear() +
+      "-" +
+      pad(date.getMonth() + 1) +
+      "-" +
+      pad(date.getDate()) +
+      "T" +
+      pad(date.getHours()) +
+      ":" +
+      pad(date.getMinutes())
+    );
+  }
+
   if (!particular) {
-    return <div className="p-6 text-center text-gray-500">Getting document ready...</div>;
+    return <div className="p-6 text-center text-gray-500">Getting reminder ready...</div>;
   }
 
   return (
@@ -180,17 +214,17 @@ const EditDocumentForm = () => {
       <Loader isOpen={isLoading} />
       <div className="p-6 max-w-xl mx-auto shadow rounded-lg font-mono dark:text-gray-500">
         <form onSubmit={handleSubmit} className="flex flex-col gap-2 text-gray-800">
-          <label className='text-gray-800 text-sm'>Document Name<span className="text-red-700">*</span></label>
+          <label className='text-gray-800 text-sm'>Reminder Name<span className="text-red-700">*</span></label>
           <input
             className="border border-gray-400 p-4 rounded-full text-sm mb-2"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter Document Name"
+            placeholder="Enter Reminder Name"
             required
           />
 
-          <label className='text-gray-800 text-sm'>Document Type<span className="text-red-700">*</span></label>
+          <label className='text-gray-800 text-sm'>Reminder Type<span className="text-red-700">*</span></label>
           <select
             className="border border-gray-400 p-4 rounded-full text-sm mb-2"
             value={category}
@@ -240,18 +274,54 @@ const EditDocumentForm = () => {
           )}
 
           <h2 className="text-gray-800 font-semibold mt-6">Reminder Settings</h2>
-          
-          <label className='text-gray-800 text-sm'>Reminder Date<span className="text-red-700">*</span></label>
-          <small className="text-gray-500 mb-1 block">
-            e.g., 10/06/2025 at 09:30 AM
-          </small>
-          <input
+
+          <label className='text-gray-800 text-sm'>Reminder Option<span className="text-red-700">*</span></label>
+          <select
             className="border border-gray-400 p-4 rounded-full text-sm mb-2"
-            type="datetime-local"
-            value={scheduleDate}
-            onChange={(e) => setScheduleDate(e.target.value)}
-            required
-          />
+            value={scheduleOption}
+            onChange={(e) => {
+              const option = e.target.value;
+              setScheduleOption(option);
+
+              if (!expiryDate) return; // can't compute without expiry
+
+              const expiry = new Date(expiryDate);
+              if (option === '1_week') {
+                const d = new Date(expiry);
+                d.setDate(d.getDate() - 7);
+                setScheduleDate(toDatetimeLocalString(d)); // datetime-local format
+              } else if (option === '2_weeks') {
+                const d = new Date(expiry);
+                d.setDate(d.getDate() - 14);
+                setScheduleDate(toDatetimeLocalString(d));
+              } else {
+                setScheduleDate(''); // reset until user picks
+              }
+            }}
+          >
+            <option value="">Select reminder option</option>
+            <option value="1_week">1 Week before expiry</option>
+            <option value="2_weeks">2 Weeks before expiry</option>
+            <option value="custom">Custom Date & Time</option>
+          </select>
+
+          {/* Custom picker only if "custom" selected */}
+          {scheduleOption === 'custom' && (
+            <>
+              <label className='text-gray-800 text-sm'>Reminder Date<span className="text-red-700">*</span></label>
+              <small className="text-gray-500 mb-1 block">
+                e.g., 10/06/2025 at 09:30 AM
+              </small>
+              <input
+                className="border border-gray-400 p-4 rounded-full text-sm mb-2"
+                type="datetime-local"
+                value={scheduleDate}
+                onChange={(e) => setScheduleDate(e.target.value)}
+                required
+              />
+            </>
+          )}
+        
 
           <label className='text-gray-800 text-sm'>Notification Preference<span className="text-red-700">*</span></label>
           <div className="flex flex-col gap-2">
@@ -319,7 +389,7 @@ const EditDocumentForm = () => {
             type="submit"
             className="bgg-main bgg-hover text-white p-5 rounded-3xl"
           >
-            Update Document
+            Update Reminder
           </button>
         </form>
       </div>

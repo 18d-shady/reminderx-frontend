@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { fetchCurrentUser, updateUserSettings, deleteProfile } from '@/lib/user';
+import { fetchCurrentUser, updateUserSettings, deleteProfile, planMap } from '@/lib/user';
 import type CurrentUser from "@/lib/user";
 import Loader from '@/components/Loader';
 import { useRouter } from 'next/navigation';
@@ -10,6 +10,8 @@ import Modal from '@/components/Modal';
 import { logout } from "@/lib/auth";
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
+import api from "@/lib/api";
+import { useSubscription } from "@/lib/useSubscription";
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -35,6 +37,46 @@ const SettingsPage = () => {
   const [showImageOptions, setShowImageOptions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageOptionsRef = useRef<HTMLDivElement>(null);
+
+  const { plan } = useSubscription();
+
+  //start
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'premium' | 'enterprise' | 'multiusers'>('free');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+
+  //multiuser modal
+  const [showOrgModal, setShowOrgModal] = useState(false);
+  const [orgName, setOrgName] = useState('');
+  const [pendingPlan, setPendingPlan] = useState<'multiusers' | null>(null);
+
+  
+
+  const handleUpgrade = async () => {
+    setLoading(true);
+    setResult(null);
+    try {
+      if (selectedPlan === 'multiusers') {
+        if (!user?.organization) {
+          // Ask for organization name first
+          setPendingPlan('multiusers');
+          setShowOrgModal(true);
+          return;
+        }
+      }
+      const response = await api.post('/api/manual-upgrade/', { plan: selectedPlan });
+      setResult(`✅ Upgraded to ${response.data.new_plan}`);
+      window.location.reload();
+    } catch (err: any) {
+      setResult(`❌ Error: ${err.response?.data?.detail || err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  //stop
+
+
+
 
   useEffect(() => {
     const loadUser = async () => {
@@ -203,12 +245,72 @@ const SettingsPage = () => {
       }
     }
   };
-  
+
+  const handleOrgSubmit = async () => {
+    if (!orgName.trim()) return;
+
+    try {
+      setLoading(true);
+      const response = await api.post('/api/create-organization/', {
+        name: orgName
+      });
+
+      if (response.status === 201) {
+        // Successfully created org and upgraded
+        await api.post('/api/manual-upgrade/', { plan: pendingPlan });
+        setShowOrgModal(false);
+        setOrgName('');
+        setPendingPlan(null);
+        setResult(`✅ Upgraded to Multiusers and organization created!`);
+        window.location.reload(); // refresh user data
+      }
+    } catch (err: any) {
+      console.error(err);
+      setResult(`❌ Error: ${err.response?.data?.detail || err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
 
   return (
     <>
       <Loader isOpen={!user} />
       <div className="p-4 w-full overflow-x-hidden font-mono flex flex-col space-y-7">
+
+        {/* Organization Info */}
+        {plan === 'multiusers' && user?.organization && (
+          <div className="rounded-md border border-gray-400 p-4 flex items-center space-x-4 mb-4 bg-gray-50 dark:bg-gray-900">
+            {/* Optional Icon */}
+            {user.organization.icon_url ? (
+              <div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0">
+                <Image
+                  src={user.organization.icon_url}
+                  alt={user.organization.name}
+                  width={48}
+                  height={48}
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
+            ) : (
+              <div className="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg">
+                {user.organization.name?.charAt(0).toUpperCase() || 'O'}
+              </div>
+            )}
+
+            {/* Name and ID */}
+            <div className="flex flex-col">
+              <span className="font-semibold text-gray-800 dark:text-gray-200">
+                {user.organization.name}
+              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                ID: {user.organization.organizational_id}
+              </span>
+            </div>
+          </div>
+        
+        )}
 
         {/* Header - Avatar and Edit Profile Button */}
         <div className="rounded-md border border-gray-400 p-4 flex justify-between items-center">
@@ -402,20 +504,29 @@ const SettingsPage = () => {
           <div className="mt-2 border border-gray-200 rounded p-4 bg-gray-50 dark:bg-gray-950 space-y-2">
             <div className="flex justify-between items-center">
               <label>Email Notifications</label>
-              <input type="checkbox" checked={emailNotifications} onChange={() => setEmailNotifications(!emailNotifications)} />
+              <input type="checkbox" checked={emailNotifications} onChange={() => setEmailNotifications(!emailNotifications)}
+                disabled={plan === 'free'} className={plan === "free" ? "opacity-50 cursor-not-allowed" : ""}
+               />
             </div>
             <div className="flex justify-between items-center">
               <label>SMS Notifications</label>
-              <input type="checkbox" checked={smsNotifications} onChange={() => setSmsNotifications(!smsNotifications)} />
+              <input type="checkbox" checked={smsNotifications} onChange={() => setSmsNotifications(!smsNotifications)}
+                disabled={plan === 'free'} className={plan === "free" ? "opacity-50 cursor-not-allowed" : ""}
+               />
             </div>
             <div className="flex justify-between items-center">
               <label>Push Notifications</label>
               <input type="checkbox" checked={pushNotifications} onChange={() => setPushNotifications(!pushNotifications)} />
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center"> 
               <label>WhatsApp Notifications</label>
-              <input type="checkbox" checked={whatsappNotifications} onChange={() => setWhatsappNotifications(!whatsappNotifications)} />
+              <input type="checkbox" checked={whatsappNotifications} onChange={() => setWhatsappNotifications(!whatsappNotifications)} 
+                disabled={plan === 'free'} className={plan === "free" ? "opacity-50 cursor-not-allowed" : ""}
+              />
             </div>
+            {plan == 'free' && (
+              <p className="text-xs text-red-600">Upgrade to use Whatsapp notifications, SMS and Email notifications</p>
+            )}
             <button
               onClick={handleSaveNotifications}
               disabled={isSaving}
@@ -428,28 +539,59 @@ const SettingsPage = () => {
           )}
 
         {/* Subscription Info */}
-        <div className="hidden">
+        {/* Subscription Info */}
+        <div>
           <h4 className="text-sm font-bold text-gray-800 mb-3">Subscription</h4>
-          <div className="rounded-md border border-gray-400 h-14 flex justify-between items-center p-2">
+          <div className="rounded-md border border-gray-400 p-4 space-y-3">
             <div className="flex items-center space-x-3">
-              <div className='h-10 w-10 bgg-main opacity-75 rounded-lg flex items-center justify-center'>
-                <svg className="h-6 w-6 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              <div className="h-10 w-10 bgg-main opacity-75 rounded-lg flex items-center justify-center">
+                <svg
+                  className="h-6 w-6 text-gray-900"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                  />
                 </svg>
               </div>
               <div>
-                <h5 className="text-xs">{user?.subscription_plan.name} Plan</h5>
+                <h5 className="text-xs">
+                  {user?.subscription_plan ? `${planMap[user.subscription_plan]} Plan` : 'No Plan'}
+                </h5>
                 <p className="text-vvs fff-main">Active until May 15, 2025</p>
               </div>
             </div>
-            <button className='p-2 flex items-center space-x-1 text-gray-800'>
-              <span className="text-vvs">Renew</span>
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+
+            {/* Upgrade Dropdown */}
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-medium text-gray-700">Change Plan</label>
+              <select
+                value={selectedPlan}
+                onChange={(e) => setSelectedPlan(e.target.value as any)}
+                className="border px-3 py-2 rounded-md text-sm"
+              >
+                <option value="free">Free</option>
+                <option value="premium">Premium</option>
+                <option value="enterprise">Enterprise</option>
+                <option value="multiusers">Multiusers</option>
+              </select>
+              <button
+                onClick={handleUpgrade}
+                disabled={loading}
+                className="px-4 py-2 rounded-lg bgg-main bgg-hover text-white disabled:opacity-50"
+              >
+                {loading ? "Upgrading..." : "Upgrade Plan"}
+              </button>
+              {result && <p className="text-xs text-gray-600">{result}</p>}
+            </div>
           </div>
         </div>
+
 
         {/* Delete Profile Section */}
         <div>
@@ -514,6 +656,34 @@ const SettingsPage = () => {
             </p>
           </div>
         </Modal>
+
+        {/* modal for organization name*/}
+        <Modal
+          isOpen={showOrgModal}
+          onClose={() => setShowOrgModal(false)}
+          title="Create Organization"
+        >
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium">Organization Name</label>
+            <input
+              type="text"
+              value={orgName}
+              onChange={(e) => setOrgName(e.target.value)}
+              placeholder="Enter organization name"
+              className="border px-3 py-2 rounded-md w-full"
+            />
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={handleOrgSubmit}
+                disabled={loading}
+                className="px-4 py-2 rounded-lg bgg-main bgg-hover text-white disabled:opacity-50"
+              >
+                {loading ? "Creating & Upgrading..." : "Create & Upgrade"}
+              </button>
+            </div>
+          </div>
+        </Modal>
+
       </div>
     </>
   );

@@ -16,7 +16,7 @@ const DocumentPage = () => {
       ? documents
       : documents.filter((doc) => doc.status === selectedTab.toLowerCase());
 
-  if (loading) return <div className="p-4 font-mono">Loading documents...</div>;
+  if (loading) return <div className="p-4 font-mono">Loading reminders...</div>;
 
   if (!loading && documents.length === 0) {
     return (
@@ -41,7 +41,7 @@ const DocumentPage = () => {
           </defs>
         </svg>
 
-        <p className="text-lg font-medium">No documents here</p>
+        <p className="text-lg font-medium">No reminders here</p>
         <p className="text-sm text-center mt-2">Click the add document button above to add documents</p>
       </div>
     );
@@ -99,7 +99,7 @@ const DocumentPage = () => {
               </defs>
             </svg>
 
-            <p className="text-lg font-medium">No documents here</p>
+            <p className="text-lg font-medium">No reminders here</p>
             
           </div>
         )}

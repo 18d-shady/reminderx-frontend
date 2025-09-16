@@ -18,6 +18,7 @@ const CreateDocumentForm = () => {
   const [userProfile, setUserProfile] = useState<CurrentUser | null>(null);
   const [error, setError] = useState('');
   const router = useRouter();
+  const [scheduleOption, setScheduleOption] = useState('1_week'); // default option
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -108,21 +109,38 @@ const CreateDocumentForm = () => {
 
   const enabledMethods = getEnabledMethods();
 
+  // Convert Date → datetime-local format (yyyy-MM-ddTHH:mm)
+  function toDatetimeLocalString(date: Date): string {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return (
+      date.getFullYear() +
+      "-" +
+      pad(date.getMonth() + 1) +
+      "-" +
+      pad(date.getDate()) +
+      "T" +
+      pad(date.getHours()) +
+      ":" +
+      pad(date.getMinutes())
+    );
+  }
+
+
   return (
     <div className="p-6 max-w-xl mx-auto shadow rounded-lg font-mono dark:text-gray-500">
       {/*<h1 className="text-xl font-bold mb-4 text-gray-800">Create New Document</h1>*/}
       <form onSubmit={handleSubmit} className="flex flex-col gap-2 text-gray-800">
-        <label className='text-gray-800 text-sm'>Document Name<span className="text-red-700">*</span></label>
+        <label className='text-gray-800 text-sm'>Reminder Name<span className="text-red-700">*</span></label>
         <input
           className="border border-gray-400 p-4 rounded-full text-sm mb-2"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter Document Name"
+          placeholder="Enter Reminder Name"
           required
         />
 
-        <label className='text-gray-800 text-sm'>Document Type<span className="text-red-700">*</span></label>
+        <label className='text-gray-800 text-sm'>Reminder Type<span className="text-red-700">*</span></label>
         <select
           className="border border-gray-400 p-4 rounded-full text-sm mb-2"
           value={category}
@@ -166,19 +184,54 @@ const CreateDocumentForm = () => {
           onChange={(e) => setDocument(e.target.files?.[0] || null)}
         />
         <h2 className="text-gray-800 font-semibold mt-6">Reminder Settings</h2>
-        
-        <label className='text-gray-800 text-sm'>Reminder Date<span className="text-red-700">*</span></label>
-        <small className="text-gray-500 mb-1 block">
-          e.g., 10/06/2025 at 09:30 AM
-        </small>
-        <input
-          className="border border-gray-400 p-4 rounded-full text-sm mb-2"
-          type="datetime-local"
-          value={scheduleDate}
-          onChange={(e) => setScheduleDate(e.target.value)}
-          required
-        />
 
+        <label className='text-gray-800 text-sm'>Reminder Option<span className="text-red-700">*</span></label>
+        <select
+          className="border border-gray-400 p-4 rounded-full text-sm mb-2"
+          value={scheduleOption}
+          onChange={(e) => {
+            const option = e.target.value;
+            setScheduleOption(option);
+
+            if (!expiryDate) return; // can't compute without expiry
+
+            const expiry = new Date(expiryDate);
+            if (option === '1_week') {
+              const d = new Date(expiry);
+              d.setDate(d.getDate() - 7);
+              setScheduleDate(toDatetimeLocalString(d)); // datetime-local format
+            } else if (option === '2_weeks') {
+              const d = new Date(expiry);
+              d.setDate(d.getDate() - 14);
+              setScheduleDate(toDatetimeLocalString(d));
+            } else {
+              setScheduleDate(''); // reset until user picks
+            }
+          }}
+        >
+          <option value="">Select reminder option</option>
+          <option value="1_week">1 Week before expiry</option>
+          <option value="2_weeks">2 Weeks before expiry</option>
+          <option value="custom">Custom Date & Time</option>
+        </select>
+
+        {/* Custom picker only if "custom" selected */}
+        {scheduleOption === 'custom' && (
+          <>
+            <label className='text-gray-800 text-sm'>Reminder Date<span className="text-red-700">*</span></label>
+            <small className="text-gray-500 mb-1 block">
+              e.g., 10/06/2025 at 09:30 AM
+            </small>
+            <input
+              className="border border-gray-400 p-4 rounded-full text-sm mb-2"
+              type="datetime-local"
+              value={scheduleDate}
+              onChange={(e) => setScheduleDate(e.target.value)}
+              required
+            />
+          </>
+        )}
+        
         <label className='text-gray-800 text-sm'>Notification Preference<span className="text-red-700">*</span></label>
         <div className="flex flex-col gap-2">
           {['email', 'sms', 'push', 'whatsapp'].map(method => {
@@ -244,7 +297,7 @@ const CreateDocumentForm = () => {
           type="submit"
           className="bgg-main bgg-hover text-white p-5 rounded-3xl"
         >
-          Create Document
+          Create Reminder
         </button>
       </form>
     </div>

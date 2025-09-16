@@ -30,7 +30,15 @@ const LoginPage = () => {
 
       // Check if login was successful
       if (data) {
-        router.push("/dashboard"); // Redirect to the dashboard after a successful login
+        // After login, check for pending staff verification
+        const pendingToken = localStorage.getItem("pendingStaffVerification");
+        if (pendingToken) {
+          localStorage.removeItem("pendingStaffVerification");
+          router.push(`/verify-staff/${pendingToken}`);
+        } else {
+          router.push("/dashboard"); // Redirect to the dashboard after a successful login
+        }
+        
       } else {
         setError("Invalid email or password");
       }

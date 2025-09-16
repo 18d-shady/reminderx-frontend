@@ -6,6 +6,8 @@ import 'react-calendar/dist/Calendar.css';
 import './calendar.css';
 import { fetchParticulars, Particular } from "@/lib/user";
 import dayjs from "dayjs";
+import { useSubscription } from "@/lib/useSubscription";
+import { redirect } from "next/navigation";
 
 interface CalendarEvent {
   id: number;
@@ -15,11 +17,19 @@ interface CalendarEvent {
   recurrence?: string;
 }
 
+
 const CalendarPage = () => {
   const [particulars, setParticulars] = useState<Particular[]>([]);
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const { plan } = useSubscription();
+
+  /*
+  if (plan === 'free') {
+    redirect('/'); // or maybe '/upgrade' page
+  }
+    */
 
   useEffect(() => {
     const loadParticulars = async () => {

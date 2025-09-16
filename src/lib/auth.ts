@@ -37,6 +37,12 @@ export const login = async (username: string, password: string) => {
   return res.data;
 };
 
+// Verify organization ID
+export const verifyOrganization = async (orgId: string) => {
+  const res = await api.get('/api/verify-organization/', { params: { org_id: orgId } });
+  return res.data;
+};
+
 // Send verification email (OTP)
 export const sendVerificationEmail = async (email: string, username: string) => {
   const res = await api.post('/api/verify-email/', { email, username });
@@ -49,8 +55,8 @@ export const resendOtp = async (email: string, username: string) => {
 };
 
 // Register a new user and save tokens
-export const register = async (username: string, email: string, password: string, otp: string) => {
-  const res = await api.post('/api/register/', { username, email, password, otp });
+export const register = async (username: string, email: string, password: string, otp: string, organization_id?: string) => {
+  const res = await api.post('/api/register/', { username, email, password, otp, organization_id: organization_id || null });
 
   // Store access and refresh tokens in cookies
   setCookie('reminderx_access', res.data.access, { maxAge: 60 * 60 });

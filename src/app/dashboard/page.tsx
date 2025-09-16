@@ -1,24 +1,42 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
 import DashboardDocuments from "@/components/DashboardDocument";
 import DashboardTable from "@/components/DashboardTable";
 import { useDocuments } from "@/lib/useDocuments";
 import Loader from '@/components/Loader';
+import { useSubscription } from "@/lib/useSubscription";
+import AnalyticsDashboardTable from "@/components/AnalyticsDashboardTable";
+import { useOrganization } from "@/lib/useOrganization";
+import { fetchCurrentUser } from "@/lib/user";
+import type CurrentUser from "@/lib/user";
+import AdminDashboard from "@/components/AdminDashboard";
 
 const Dashboard = () => {
   const router = useRouter();
   const { documents, loading } = useDocuments();
+  const { plan } = useSubscription();
+
+  const [user, setUser] = useState<CurrentUser | null>(null)
 
   // You can add authentication checks here, for example, if the user is logged in
   useEffect(() => {
     const token = getCookie('reminderx_access');
     if (!token) {
       router.push("/login");
+    } else {
+      fetchCurrentUser().then(setUser);
     }
   }, [router]);
+
+  const orgId =
+    user?.organization && user.role === "admin"
+      ? user.organization.organizational_id.toString()
+      : null;
+
+  const { organization } = useOrganization(orgId ?? "");
 
   const expiring = documents.filter(doc => doc.status === "expiring soon").length;
   const expired = documents.filter(doc => doc.status === "expired").length;
@@ -51,7 +69,31 @@ const Dashboard = () => {
           md:h-[calc(100vh-20rem)] overflow-y-auto">
           <div className="overflow-x-auto xl:overflow-x-visible md:me-5 h-full">
             <div className="w-full xl:border border-gray-300 xl:shadow-md rounded-lg">
-              <DashboardTable data={documents} />
+
+              {/* 
+              {plan == 'enterprise' || plan == 'multiusers' ? (
+                <AnalyticsDashboardTable data={documents} />
+              ) : (
+                <DashboardTable data={documents} />
+              )}
+              */}
+
+              {user && (
+                <>
+                  {plan === "enterprise" ? (
+                    <AnalyticsDashboardTable data={documents} />
+                  ) : plan === "multiusers" && user.role !== "admin" ? (
+                    <AnalyticsDashboardTable data={documents} />
+                  ) : plan === "multiusers" && user.role === "admin" ? (
+                    <div className="space-y-6">
+                      <AdminDashboard staff={organization?.staff ?? []} />
+                      <AnalyticsDashboardTable data={documents} />
+                    </div>
+                  ) : (
+                    <DashboardTable data={documents} />
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>

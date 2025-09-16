@@ -51,8 +51,8 @@ const DocumentDetails = () => {
       await deleteParticular(Number(id));
       router.push('/documents');
     } catch (error) {
-      console.error('Failed to delete document:', error);
-      alert('Failed to delete document. Please try again.');
+      console.error('Failed to delete reminder:', error);
+      alert('Failed to delete reminder. Please try again.');
     } finally {
       setIsDeleting(false);
       setIsDeleteModalOpen(false);
@@ -154,7 +154,7 @@ const DocumentDetails = () => {
         </div>
 
         <div className='flex flex-row justify-between items-center'>
-          <h4 className='text-sm font-semibold text-gray-800 dark:text-gray-500'>Document Details</h4>
+          <h4 className='text-sm font-semibold text-gray-800 dark:text-gray-500'>Reminder Details</h4>
           {isExpiringSoon ? (
             <button
               className='bgg-main bgg-hover text-white px-3 py-1 text-sm rounded-md'
@@ -169,7 +169,7 @@ const DocumentDetails = () => {
 
         <div className="border border-gray-300 p-4 rounded-lg text-gray-800 dark:text-gray-500">
           <div className='flex flex-row justify-between text-sm my-1'>
-            <h4>Document Name</h4>
+            <h4>Reminder Name</h4>
             <h4>{particular.title}</h4>
           </div>
 
@@ -233,13 +233,13 @@ const DocumentDetails = () => {
         </div>
 
         <Link href={`/documents/${id}/edit`} className="px-4 py-4 text-xs text-white bgg-main bgg-hover rounded-3xl text-center">
-          Edit Document
+          Edit Reminder
         </Link>
         <button 
           onClick={() => setIsDeleteModalOpen(true)}
           className='px-4 py-4 text-xs text-white bg-red-600 rounded-3xl text-center hover:bg-red-700'
         >
-          Delete Document
+          Delete Reminder
         </button>
 
         <Modal
@@ -266,7 +266,7 @@ const DocumentDetails = () => {
           }
         >
           <p className="text-sm text-gray-600">
-            Are you sure you want to delete this document? This action cannot be undone.
+            Are you sure you want to delete this reminder? This action cannot be undone.
           </p>
         </Modal>
 

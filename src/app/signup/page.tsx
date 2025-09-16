@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { register, sendVerificationEmail, resendOtp } from "@/lib/auth";
+import { register, sendVerificationEmail, resendOtp, verifyOrganization } from "@/lib/auth";
 import { getCookie } from "cookies-next";
 import Link from "next/link";
 import Image from "next/image";
 import Loader from "@/components/Loader";
 import Modal from "@/components/Modal";
+
 
 const SignupPage = () => {
   const [username, setUsername] = useState("");
@@ -31,6 +32,13 @@ const SignupPage = () => {
   const [otpTimer, setOtpTimer] = useState(600); // 10 minutes in seconds
   const [resendCooldown, setResendCooldown] = useState(0); // 30s cooldown for resend
   const modalRef = useRef<HTMLDivElement | null>(null);
+
+  const [showOrgModal, setShowOrgModal] = useState(false);
+  const [organizationId, setOrganizationId] = useState("");
+  const [orgVerified, setOrgVerified] = useState<{ id: string; name: string } | null>(null);
+  const [orgError, setOrgError] = useState<string | null>(null);
+  const [isVerifyingOrg, setIsVerifyingOrg] = useState(false);
+
 
   useEffect(() => {
     const token = getCookie('reminderx_access');
@@ -179,7 +187,7 @@ const SignupPage = () => {
     const otp = otpDigits.join("");
     try {
       // Directly register with OTP
-      const data = await register(pendingUser.username, pendingUser.email, pendingUser.password, otp);
+      const data = await register(pendingUser.username, pendingUser.email, pendingUser.password, otp, orgVerified?.id);
       setShowOtpModal(false);
       router.push("/dashboard");
     } catch (error: any) {
@@ -240,6 +248,12 @@ const SignupPage = () => {
 
           <div className="text-white xl:px-10">
             <h4 className="text-center text-xl lg:text-2xl">Create Account</h4>
+
+            {orgVerified &&
+              <p className="text-white text-lg mt-3 text-center">
+                Organization Name: {orgVerified.name}
+              </p>
+            }
 
             {error && <div className="text-red-500 text-sm mb-3 text-center">{error}</div>}
 
@@ -315,7 +329,18 @@ const SignupPage = () => {
                 Create Account
               </button>
             </form>
+
+            {!orgVerified && (
+              <button
+                className="px-3 py-2 border bdd-main text-white rounded-full hover:bg-gray-700 text-sm mx-auto block"
+                onClick={() => setShowOrgModal(true)}
+              >
+                Sign up with an Organization
+              </button>
+            )}
+
           </div>
+          
 
           <div className="text-left mt-4">
             <span className="text-xs text-gray-500">Have an account? </span>
@@ -362,6 +387,67 @@ const SignupPage = () => {
             </svg>
           </div>
         </div>
+
+        <Modal
+          isOpen={showOrgModal}
+          onClose={() => setShowOrgModal(false)}
+          title="Join an Organization"
+          size="sm"
+          footer={null}
+        >
+          <div>
+            <input
+              type="text"
+              value={organizationId}
+              onChange={(e) => {
+                setOrganizationId(e.target.value);
+                setOrgError(null);
+              }}
+              placeholder="Enter Organization ID"
+              className="w-full p-3 border rounded mb-3"
+            />
+            {orgError && <p className="text-red-500 text-xs mb-2">{orgError}</p>}
+
+            {orgVerified ? (
+              <p className="text-green-600 text-sm mb-3">
+                ✅ Verified organization: {orgVerified.name}
+              </p>
+            ) : null}
+
+            <button
+              className="w-full bgg-main text-black p-3 rounded-xl text-sm bgg-hover"
+              disabled={isVerifyingOrg || !organizationId}
+              onClick={async () => {
+                setIsVerifyingOrg(true);
+                try {
+                  const res = await verifyOrganization(organizationId);
+                  setOrgVerified({ id: res.organizational_id, name: res.name });
+                  setOrgError(null);
+                } catch (err: any) {
+                  setOrgVerified(null);
+                  setOrgError("Organization not found");
+                } finally {
+                  setIsVerifyingOrg(false);
+                }
+              }}
+            >
+              {isVerifyingOrg ? "Verifying..." : "Verify Organization"}
+            </button>
+
+            {orgVerified && (
+              <button
+                className="w-full mt-3 bg-white fff-main border bdd-main text-sm p-3 rounded-xl hover:bg-gray-200"
+                onClick={() => {
+                  setShowOrgModal(false);
+                  // proceed with registration form
+                }}
+              >
+                Continue to Registration
+              </button>
+            )}
+          </div>
+        </Modal>
+
 
         <Modal
           isOpen={showOtpModal}

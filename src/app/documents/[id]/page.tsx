@@ -5,7 +5,7 @@ import DocumentDetails from '@/components/DocumentDetails';
 
 export default function ViewDocumentPage() {
   return (
-    <ResponsiveModal title="Document Details">
+    <ResponsiveModal title="Reminder Details">
       <DocumentDetails />
     </ResponsiveModal>
   );

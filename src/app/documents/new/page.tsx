@@ -5,7 +5,7 @@ import CreateDocumentForm from '@/components/CreateDocumentForm';
 
 export default function CreateDocumentPage() {
   return (
-    <ResponsiveModal title="Create New Document">
+    <ResponsiveModal title="Create New Reminder">
       <CreateDocumentForm />
     </ResponsiveModal>
   );

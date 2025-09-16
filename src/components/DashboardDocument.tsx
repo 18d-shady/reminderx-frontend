@@ -20,7 +20,7 @@ const DashboardDocuments: React.FC<DashboardDocumentsProps> = ({ type, count, ac
         actionMessage = "No immediate action required"
     }
   } else if (type === 'total') {
-    message = 'Total Documents';
+    message = 'Total Reminders';
     if(action > 0){
         actionMessage = `${action} document(s) are expired`
     } else {

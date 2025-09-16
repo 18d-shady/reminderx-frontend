@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useEffect, useState } from 'react';
 import { fetchCurrentUser } from '@/lib/user';
 import type CurrentUser from "@/lib/user";
+import { useSubscription } from '@/lib/useSubscription';
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -14,6 +15,7 @@ const Sidebar = () => {
   const router = useRouter();
 
   const [user, setUser] = useState<CurrentUser | null>(null);
+  //const { plan } = useSubscription();
 
   const handleLogout = () => {
     logout();
@@ -83,6 +85,11 @@ const Sidebar = () => {
 
           <Link href="/dashboard">Dashboard</Link>
         </div>
+
+        {/*}
+        {plan !== 'free' && (
+        
+        </div>)} */}
 
         <div className={`px-4 py-2 w-[90%] flex flex-row space-x-2 item-center
           ${pathname === '/calendar' ? 'bgg-main text-gray-900' : 'hover:text-gray-400 '}`}>

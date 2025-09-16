@@ -122,7 +122,7 @@ export function DocumentSearch() {
           type="text"
           value={query}
           onChange={handleInputChange}
-          placeholder="Search documents..."
+          placeholder="Search reminders..."
           className="w-full pl-10 pr-4 py-2 text-gray-800 rounded-full border border-gray-400 text-sm"
         />
         {renderResults()}

@@ -1,4 +1,5 @@
-import api from '@/lib/api'; // Adjust path if needed
+import api from '@/lib/api';
+import { useSubscription } from './useSubscription'; // Adjust path if needed
 
 interface CurrentUser {
   user: {
@@ -10,19 +11,52 @@ interface CurrentUser {
   sms_notifications: boolean;
   push_notifications: boolean;
   whatsapp_notifications: boolean;
-  subscription_plan: {
-    name: 'free' | 'premium' | 'enterprise';
-  };
+  subscription_plan: number | null;
   profile_picture_url: string | null;
+  role: "admin" | "staff"; // added role
+  organization?: {
+    id: number;                // organization database id
+    organizational_id: string; // 6-digit ID
+    name: string;
+    icon_url: string | null;
+    admin?: {
+      id: number;
+      username: string;
+      email: string;
+    } | null;
+  } | null;
 }
 export default CurrentUser;
+
+export const planMap: Record<number, 'free' | 'premium' | 'enterprise' | 'multiusers'> = {
+  1: 'free',
+  2: 'premium',
+  3: 'enterprise',
+  4: 'multiusers',
+};
+
 
 export const fetchCurrentUser = async (): Promise<CurrentUser | null> => {
   try {
     const response = await api.get<CurrentUser>('/api/me/');
-    return response.data;
+    const user = response.data;
+
+    // ✅ update Zustand store
+    const { setPlan, clear } = useSubscription.getState();
+
+    if (user.subscription_plan && planMap[user.subscription_plan]) {
+      setPlan(planMap[user.subscription_plan]);
+    } else {
+      clear();
+    }
+
+    return user;
   } catch (error) {
     console.error('Failed to fetch user:', error);
+    // clear plan on failure
+    const { clear } = useSubscription.getState();
+    clear();
+
     return null;
   }
 };
