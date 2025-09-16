@@ -5,16 +5,21 @@ import { useEffect } from "react";
 import api from "@/lib/api";
 import { getCookie } from "cookies-next";
 
-export default function VerifyStaffPage({
-  params,
-}: {
-  params: { token: string };
-}) {
-  const router = useRouter();
-  const { token } = params; // ✅ this works in App Router
+interface VerifyStaffPageProps {
+  params: {
+    token: string;
+  };
+}
 
+export default function VerifyStaffPage({ params }: VerifyStaffPageProps) {
+  const router = useRouter();
+  
   useEffect(() => {
     const verifyStaff = async () => {
+      // Await params since they might be a Promise in some Next.js versions
+      const resolvedParams = await Promise.resolve(params);
+      const { token } = resolvedParams;
+      
       const access = getCookie("reminderx_access");
       if (!access) {
         // Not logged in → save token and redirect to login
@@ -25,7 +30,7 @@ export default function VerifyStaffPage({
 
       try {
         await api.post("/api/verify-staff/", { token });
-        alert("✅ Staff successfully verified!");
+        alert("Staff successfully verified!");
         router.push("/dashboard");
       } catch (err: any) {
         console.error("Verification failed:", err);
@@ -35,7 +40,7 @@ export default function VerifyStaffPage({
     };
 
     verifyStaff();
-  }, [token, router]);
+  }, [params, router]);
 
   return <p>Verifying staff…</p>;
 }

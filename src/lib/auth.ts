@@ -80,6 +80,6 @@ export const confirmPasswordReset = async (token: string, newPassword: string) =
 // Logout user and remove tokens from cookies
 export const logout = () => {
   // Remove the access and refresh tokens cookies
-  document.cookie = 'reminderx_access=; Max-Age=0';
-  document.cookie = 'reminderx_refresh=; Max-Age=0';
+  document.cookie = 'reminderx_access=; Max-Age=0; path=/';
+  document.cookie = 'reminderx_refresh=; Max-Age=0; path=/';
 };
