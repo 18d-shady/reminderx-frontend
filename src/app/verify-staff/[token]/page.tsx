@@ -17,6 +17,7 @@ export default function VerifyStaffPage({ params }: VerifyStaffPageProps) {
     const verifyStaff = async () => {
       
       const { token } = await params;
+      const decodeToken = decodeURIComponent(token);
       const access = getCookie("reminderx_access");
       if (!access) {
         // Not logged in → save token and redirect to login
@@ -26,7 +27,7 @@ export default function VerifyStaffPage({ params }: VerifyStaffPageProps) {
       }
 
       try {
-        await api.post("/api/verify-staff/", { token });
+        await api.post("/api/verify-staff/", { token: decodeToken });
         alert("Staff successfully verified!");
         router.push("/dashboard");
       } catch (err: any) {
