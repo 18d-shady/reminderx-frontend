@@ -9,6 +9,7 @@ type BackendParticular = {
   category: string;
   expiry_date: string;
   document_url: string;
+  completed: boolean;
 };
 
 type UIData = {
@@ -18,6 +19,7 @@ type UIData = {
   expiry_date: string;
   status: string;
   picture: string;
+  completed: boolean;
 };
 
 const computeStatus = (expiryDate: string): string => {
@@ -48,7 +50,8 @@ export const useDocuments = () => {
           category: doc.category,
           expiry_date: dayjs(doc.expiry_date).format("MM/DD/YYYY"),
           status: computeStatus(doc.expiry_date),
-          picture: doc.document_url
+          picture: doc.document_url,
+          completed: doc.completed
         }));
         setDocuments(mapped);
       } catch (err) {

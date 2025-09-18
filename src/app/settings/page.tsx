@@ -12,6 +12,7 @@ import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 import api from "@/lib/api";
 import { useSubscription } from "@/lib/useSubscription";
+import { updateOrganizationIcon } from "@/lib/organization";
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -49,6 +50,10 @@ const SettingsPage = () => {
   const [showOrgModal, setShowOrgModal] = useState(false);
   const [orgName, setOrgName] = useState('');
   const [pendingPlan, setPendingPlan] = useState<'multiusers' | null>(null);
+
+  const [showOrgIconOptions, setShowOrgIconOptions] = useState(false);
+  const orgIconInputRef = useRef<HTMLInputElement>(null);
+  const orgIconOptionsRef = useRef<HTMLDivElement>(null);
 
   
 
@@ -107,6 +112,18 @@ const SettingsPage = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (orgIconOptionsRef.current && !orgIconOptionsRef.current.contains(event.target as Node)) {
+        setShowOrgIconOptions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
 
   const handleDeleteProfile = async () => {
     try {
@@ -246,6 +263,33 @@ const SettingsPage = () => {
     }
   };
 
+  const handleOrgIconClick = () => setShowOrgIconOptions(true);
+
+  const handleOrgIconEdit = () => {
+    orgIconInputRef.current?.click();
+    setShowOrgIconOptions(false);
+  };
+
+  const handleOrgIconChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user?.organization) return;
+
+    try {
+      setIsSaving(true);
+      await updateOrganizationIcon(user.organization.organizational_id, file);
+
+      // Refresh user
+      const updatedUser = await fetchCurrentUser();
+      if (updatedUser) setUser(updatedUser);
+    } catch (error) {
+      setSaveError("Failed to update organization icon");
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+
   const handleOrgSubmit = async () => {
     if (!orgName.trim()) return;
 
@@ -282,24 +326,63 @@ const SettingsPage = () => {
         {/* Organization Info */}
         {plan === 'multiusers' && user?.organization && (
           <div className="rounded-md border border-gray-400 p-4 flex items-center space-x-4 mb-4 bg-gray-50 dark:bg-gray-900">
-            {/* Optional Icon */}
-            {user.organization.icon_url ? (
-              <div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0">
-                <Image
-                  src={user.organization.icon_url}
-                  alt={user.organization.name}
-                  width={48}
-                  height={48}
-                  style={{ objectFit: 'cover' }}
-                />
+            {/* Org Icon */}
+            <div className="relative">
+              <div
+                className="h-12 w-12 rounded-full overflow-hidden cursor-pointer hover:opacity-80 transition-opacity bg-gray-200 flex items-center justify-center"
+                onClick={handleOrgIconClick}
+              >
+                {user.organization.icon_url ? (
+                  <Image
+                    src={user.organization.icon_url}
+                    alt={user.organization.name}
+                    width={48}
+                    height={48}
+                    style={{ objectFit: "cover" }}
+                  />
+                ) : (
+                  <span className="text-lg text-gray-600">
+                    {user.organization.name?.charAt(0).toUpperCase() || "O"}
+                  </span>
+                )}
               </div>
-            ) : (
-              <div className="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg">
-                {user.organization.name?.charAt(0).toUpperCase() || 'O'}
-              </div>
-            )}
 
-            {/* Name and ID */}
+              {/* Options dropdown */}
+              {showOrgIconOptions && (
+                <div
+                  ref={orgIconOptionsRef}
+                  className="absolute top-full left-0 mt-2 bg-white dark:bg-gray-950 rounded-lg shadow-lg border border-gray-200 py-2 w-32 z-10"
+                >
+                  <button
+                    onClick={handleOrgIconEdit}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                  >
+                    Edit
+                  </button>
+                  {user.organization.icon_url && (
+                    <a
+                      href={user.organization.icon_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      onClick={() => setShowOrgIconOptions(false)}
+                    >
+                      View
+                    </a>
+                  )}
+                </div>
+              )}
+
+              <input
+                type="file"
+                ref={orgIconInputRef}
+                onChange={handleOrgIconChange}
+                accept="image/*"
+                className="hidden"
+              />
+            </div>
+
+            {/* Org Name + ID */}
             <div className="flex flex-col">
               <span className="font-semibold text-gray-800 dark:text-gray-200">
                 {user.organization.name}
@@ -308,8 +391,7 @@ const SettingsPage = () => {
                 ID: {user.organization.organizational_id}
               </span>
             </div>
-          </div>
-        
+          </div>  
         )}
 
         {/* Header - Avatar and Edit Profile Button */}
