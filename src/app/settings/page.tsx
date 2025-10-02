@@ -57,6 +57,41 @@ const SettingsPage = () => {
 
   
 
+
+  const handleUpgrade = async () => {
+    setLoading(true);
+    setResult(null);
+    try {
+      if (selectedPlan === 'multiusers') {
+        if (!user?.organization) {
+          // Ask for organization name first
+          setPendingPlan('multiusers');
+          setShowOrgModal(true);
+          return;
+        }
+      }
+
+      // Call backend to init paystack
+      const response = await api.post('/api/paystack/init/', {
+        plan: selectedPlan,
+        email: user?.user.email,
+        callback_url: `${window.location.origin}/payment/callback`,
+      });
+
+      if (response.data?.status && response.data?.data?.authorization_url) {
+        window.location.href = response.data.data.authorization_url; // redirect to Paystack checkout
+      } else {
+        setResult("❌ Could not start payment, please try again.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setResult(`❌ Error: ${err.response?.data?.detail || err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /*
   const handleUpgrade = async () => {
     setLoading(true);
     setResult(null);
@@ -78,6 +113,7 @@ const SettingsPage = () => {
       setLoading(false);
     }
   };
+  */
   //stop
 
 
@@ -658,9 +694,9 @@ const SettingsPage = () => {
                 className="border px-3 py-2 rounded-md text-sm"
               >
                 <option value="free">Free</option>
-                <option value="premium">Premium</option>
-                <option value="enterprise">Enterprise</option>
-                <option value="multiusers">Multiusers</option>
+                <option value="premium">Premium N1500 per year</option>
+                <option value="enterprise">Enterprise N50,000 per year</option>
+                <option value="multiusers">Multiusers N100,000 per year</option>
               </select>
               <button
                 onClick={handleUpgrade}
