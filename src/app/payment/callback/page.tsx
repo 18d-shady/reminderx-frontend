@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/lib/api"; // <- same instance you used in handleUpgrade
+import api from "@/lib/api";
+import { getCookie } from "cookies-next";
 
 export default function PaymentCallbackPage() {
   const [loading, setLoading] = useState(true);
@@ -24,7 +25,15 @@ export default function PaymentCallbackPage() {
           return;
         }
 
-        // Call backend verify endpoint using same `api` instance
+        const access = getCookie("reminderx_access");
+        if (!access) {
+          // Not logged in → save reference and redirect to login
+          localStorage.setItem("pendingPaymentReference", reference);
+          router.push(`/login?next=/payment/callback?reference=${reference}`);
+          return;
+        }
+
+        // ✅ Call backend verify endpoint
         const response = await api.get(`/api/paystack/verify/${reference}/`);
 
         if (response.data?.status === "success") {
@@ -34,9 +43,9 @@ export default function PaymentCallbackPage() {
             ).toLocaleDateString()}`
           );
 
-          // Redirect after short delay
+          // Refresh state / redirect
           setTimeout(() => {
-            router.push("/settings"); // or /settings
+            router.push("/settings");
           }, 3000);
         } else {
           setResult("❌ Payment verification failed.");

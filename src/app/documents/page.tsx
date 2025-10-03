@@ -16,7 +16,7 @@ const DocumentPage = () => {
       ? documents
       : documents.filter((doc) => doc.status === selectedTab.toLowerCase());
 
-  if (loading) return <div className="p-4 font-mono">Loading reminders...</div>;
+  if (loading) return <div className="p-4 font-pop">Loading reminders...</div>;
 
   if (!loading && documents.length === 0) {
     return (
@@ -48,7 +48,7 @@ const DocumentPage = () => {
   }
 
   return (
-    <div className="p-4 w-full max-w-full overflow-x-hidden font-mono">
+    <div className="p-4 w-full max-w-full overflow-x-hidden font-pop">
       {/* Mobile Tabs */}
       <div className="flex flex-row space-x-3 mb-5 lg:hidden">
         {TABS.map((tab) => (

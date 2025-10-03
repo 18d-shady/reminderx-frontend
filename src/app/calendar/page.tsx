@@ -102,7 +102,7 @@ const CalendarPage = () => {
   };
 
   return (
-    <div className="p-6 w-full max-w-full overflow-x-hidden font-mono">
+    <div className="p-6 w-full max-w-full overflow-x-hidden font-pop">
       <div className="fixed bottom-10 right-10">
         <button
           onClick={() => setViewMode(viewMode === 'calendar' ? 'list' : 'calendar')}

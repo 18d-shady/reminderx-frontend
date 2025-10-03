@@ -125,7 +125,7 @@ export default function ExcelUploadPage() {
 
 
   return (
-    <div className="h-full w-full font-mono">
+    <div className="h-full w-full font-pop">
       {/* ✅ Header (fixed like dashboard cards) */}
       <div className="fixed top-28 md:top-32 left-0 w-full px-2 md:pl-72">
         <h2 className="text-xl lg:text-2xl font-semibold mb-4">

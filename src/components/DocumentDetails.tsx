@@ -99,7 +99,7 @@ const DocumentDetails = () => {
     const links = renewalLinks[categoryKey] || renewalLinks['default'];
 
     return(
-      <div className="flex flex-col space-y-5 font-mono">
+      <div className="flex flex-col space-y-5 font-pop">
         <div className="border border-gray-300 p-4 rounded-lg">
           <div className="flex flex-row justify-start space-x-4">
             <div className="w-12 h-12 rounded overflow-hidden flex items-center justify-center">

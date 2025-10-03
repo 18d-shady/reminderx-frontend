@@ -32,9 +32,13 @@ const LoginPage = () => {
       if (data) {
         // After login, check for pending staff verification
         const pendingToken = localStorage.getItem("pendingStaffVerification");
+        const pendingPayment = localStorage.getItem("pendingPaymentReference");
         if (pendingToken) {
           localStorage.removeItem("pendingStaffVerification");
           router.push(`/verify-staff/${pendingToken}`);
+        } else if (pendingPayment) {
+          localStorage.removeItem("pendingPaymentReference");
+          router.push(`/payment/callback?reference=${pendingPayment}`);
         } else {
           router.push("/dashboard"); // Redirect to the dashboard after a successful login
         }
@@ -66,7 +70,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen h-screen flex justify-center bg-black font-mono relative overflow-hidden">
+    <div className="min-h-screen h-screen flex justify-center bg-black font-pop relative overflow-hidden">
       <div className="absolute bgg-main rounded-full bottom-0 right-0 opacity-50 translate-y-[600px]
        translate-x-[800px] md:translate-x-[550px] md:translate-y-[550px]
        lg:translate-x-28 lg:translate-y-[550px] w-[1000px] h-[1000px]"></div>
@@ -83,7 +87,7 @@ const LoginPage = () => {
               }}
             />
           </div>
-          <h1 className="">NAIKAS</h1>
+          <h1 className="">NAIKAS Reminders App</h1>
         </div>
 
         <div className="text-white xl:px-10">

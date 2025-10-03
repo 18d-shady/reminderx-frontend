@@ -13,6 +13,7 @@ import PhoneInput from 'react-phone-number-input'
 import api from "@/lib/api";
 import { useSubscription } from "@/lib/useSubscription";
 import { updateOrganizationIcon } from "@/lib/organization";
+import { formatExpiry } from "@/lib/expiry_date";
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -30,6 +31,7 @@ const SettingsPage = () => {
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [showNotificationEdit, setShowNotificationEdit] = useState(false);
   const [showPhoneEdit, setShowPhoneEdit] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState<string | undefined>(undefined);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -337,12 +339,25 @@ const SettingsPage = () => {
 
       if (response.status === 201) {
         // Successfully created org and upgraded
-        await api.post('/api/manual-upgrade/', { plan: pendingPlan });
+        const paystackRes = await api.post("/api/paystack/init/", {
+          plan: pendingPlan,
+          email: user?.user.email,
+          callback_url: `${window.location.origin}/payment/callback`,
+        });
+
+        // Cleanup
         setShowOrgModal(false);
-        setOrgName('');
+        setOrgName("");
         setPendingPlan(null);
-        setResult(`✅ Upgraded to Multiusers and organization created!`);
-        window.location.reload(); // refresh user data
+
+        if (
+          paystackRes.data?.status &&
+          paystackRes.data?.data?.authorization_url
+        ) {
+          window.location.href = paystackRes.data.data.authorization_url;
+        } else {
+          setResult("❌ Could not start payment, please try again.");
+        }
       }
     } catch (err: any) {
       console.error(err);
@@ -357,7 +372,7 @@ const SettingsPage = () => {
   return (
     <>
       <Loader isOpen={!user} />
-      <div className="p-4 w-full overflow-x-hidden font-mono flex flex-col space-y-7">
+      <div className="p-4 w-full overflow-x-hidden font-pop flex flex-col space-y-7">
 
         {/* Organization Info */}
         {plan === 'multiusers' && user?.organization && (
@@ -656,57 +671,71 @@ const SettingsPage = () => {
           </div>
           )}
 
-        {/* Subscription Info */}
+
         {/* Subscription Info */}
         <div>
           <h4 className="text-sm font-bold text-gray-800 mb-3">Subscription</h4>
-          <div className="rounded-md border border-gray-400 p-4 space-y-3">
-            <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 bgg-main opacity-75 rounded-lg flex items-center justify-center">
-                <svg
-                  className="h-6 w-6 text-gray-900"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                  />
-                </svg>
+          <div className="rounded-md border border-gray-400 p-2 space-y-3">
+            <div className="flex justify-between items-center" onClick={() => setShowUpgrade(prev => !prev)}>
+              <div className="flex items-center space-x-3">
+                <div className="h-10 w-10 bgg-main opacity-75 rounded-lg flex items-center justify-center">
+                  <svg
+                    className="h-6 w-6 text-gray-900"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h5 className="text-xs">
+                    {user?.subscription_plan ? `${planMap[user.subscription_plan]} Plan` : 'No Plan'}
+                  </h5>
+                  <p className="text-vvs fff-main">
+                    {user?.subscription_expiry
+                    ? formatExpiry(user.subscription_expiry)
+                    : 'No active subscription'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h5 className="text-xs">
-                  {user?.subscription_plan ? `${planMap[user.subscription_plan]} Plan` : 'No Plan'}
-                </h5>
-                <p className="text-vvs fff-main">Active until May 15, 2025</p>
+
+              <div className='p-3'>
+                <svg className="h-5 w-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
               </div>
             </div>
 
             {/* Upgrade Dropdown */}
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-medium text-gray-700">Change Plan</label>
-              <select
-                value={selectedPlan}
-                onChange={(e) => setSelectedPlan(e.target.value as any)}
-                className="border px-3 py-2 rounded-md text-sm"
-              >
-                <option value="free">Free</option>
-                <option value="premium">Premium N1500 per year</option>
-                <option value="enterprise">Enterprise N50,000 per year</option>
-                <option value="multiusers">Multiusers N100,000 per year</option>
-              </select>
-              <button
-                onClick={handleUpgrade}
-                disabled={loading}
-                className="px-4 py-2 rounded-lg bgg-main bgg-hover text-white disabled:opacity-50"
-              >
-                {loading ? "Upgrading..." : "Upgrade Plan"}
-              </button>
-              {result && <p className="text-xs text-gray-600">{result}</p>}
-            </div>
+            {showUpgrade && (
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-gray-700">Change Plan</label>
+                <select
+                  value={selectedPlan}
+                  onChange={(e) => setSelectedPlan(e.target.value as any)}
+                  className="border px-3 py-2 rounded-md text-sm"
+                >
+                  <option value="free">Free</option>
+                  <option value="premium">Premium N1500 per year</option>
+                  <option value="enterprise">Enterprise N50,000 per year</option>
+                  <option value="multiusers">Multiusers N100,000 per year</option>
+                </select>
+                <button
+                  onClick={handleUpgrade}
+                  disabled={loading}
+                  className="px-4 py-2 rounded-lg bgg-main bgg-hover text-white disabled:opacity-50"
+                >
+                  {loading ? "Upgrading..." : "Upgrade Plan"}
+                </button>
+                {result && <p className="text-xs text-gray-600">{result}</p>}
+              </div>
+            )}
           </div>
         </div>
 

@@ -53,7 +53,7 @@ const Dashboard = () => {
   return (
     <>
       <Loader isOpen={loading} />
-      <div className="h-full w-full font-mono">
+      <div className="h-full w-full font-pop">
 
         <div className="fixed top-28 md:top-32 left-0 w-full px-2 md:pl-72">
           <div className="overflow-x-auto xl:overflow-x-visible md:me-5">

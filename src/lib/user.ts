@@ -12,6 +12,7 @@ interface CurrentUser {
   push_notifications: boolean;
   whatsapp_notifications: boolean;
   subscription_plan: number | null;
+  subscription_expiry: string | null;
   profile_picture_url: string | null;
   role: "admin" | "staff"; // added role
   organization?: {

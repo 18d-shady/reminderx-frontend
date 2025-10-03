@@ -31,7 +31,7 @@ const Sidebar = () => {
   }, []);
 
   return (
-    <nav className="flex flex-col justify-between h-screen font-mono w-full">
+    <nav className="flex flex-col justify-between h-screen font-pop w-full">
 
       <div className="flex flex-col space-y-3 text-sm">
         <div className="flex items-center text-white text-xl m-4 space-x-2 ">

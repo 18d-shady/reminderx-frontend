@@ -127,7 +127,7 @@ const CreateDocumentForm = () => {
 
 
   return (
-    <div className="p-6 max-w-xl mx-auto shadow rounded-lg font-mono dark:text-gray-500">
+    <div className="p-6 max-w-xl mx-auto shadow rounded-lg font-pop dark:text-gray-500">
       {/*<h1 className="text-xl font-bold mb-4 text-gray-800">Create New Document</h1>*/}
       <form onSubmit={handleSubmit} className="flex flex-col gap-2 text-gray-800">
         <label className='text-gray-800 text-sm'>Reminder Name<span className="text-red-700">*</span></label>

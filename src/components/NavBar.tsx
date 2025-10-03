@@ -49,7 +49,7 @@ const Navbar = () => {
 
 
   return (
-    <nav className="w-full bg-white border-b border-gray-300 font-mono z-50">
+    <nav className="w-full bg-white border-b border-gray-300 font-pop z-50">
       {/* Desktop navbar */}
       <div className="hidden md:flex flex-row justify-between items-center p-6">
         
@@ -122,7 +122,7 @@ const Navbar = () => {
                       }}
                     />
                   </div>
-                  <h1 className="">NAIKAS</h1>
+                  <h1 className="">NAIKAS Reminders App</h1>
                 </div>
                 <button onClick={toggleMobileMenu} className="p-2 rounded-full bg-gray-600 text-white">
                 <svg className="h-5 w-5"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">

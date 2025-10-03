@@ -2,7 +2,7 @@
 
 const PrivacyPolicy = () => {
   return (
-    <div className="font-mono text-gray-800 dark:text-gray-300 p-4 max-w-4xl mx-auto">
+    <div className="font-pop text-gray-800 dark:text-gray-300 p-4 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-2">Naikas Reminder App Privacy Policy</h1>
       <h3 className="text-lg font-semibold mb-4">Effective Date: 10th July 2025</h3>
 

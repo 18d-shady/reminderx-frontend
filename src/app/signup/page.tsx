@@ -226,7 +226,7 @@ const SignupPage = () => {
   return (
     <>
       <Loader isOpen={isLoading} />
-      <div className="min-h-screen h-screen flex justify-center bg-black font-mono relative overflow-hidden">
+      <div className="min-h-screen h-screen flex justify-center bg-black font-pop relative overflow-hidden">
         <div className="absolute bgg-main rounded-full bottom-0 right-0 opacity-50 translate-y-[600px]
          translate-x-[800px] md:translate-x-[550px] md:translate-y-[550px]
          lg:translate-x-28 lg:translate-y-[550px] w-[1000px] h-[1000px]"></div>
@@ -243,7 +243,7 @@ const SignupPage = () => {
                 }}
               />
             </div>
-            <h1 className="">NAIKAS</h1>
+            <h1 className="">NAIKAS Reminders App</h1>
           </div>
 
           <div className="text-white xl:px-10">

@@ -43,7 +43,7 @@ const NotificationPage = () => {
   return (
     <>
       <Loader isOpen={loading} />
-      <div className="p-4 overflow-x-hidden font-mono">
+      <div className="p-4 overflow-x-hidden font-pop">
         {notifications.length === 0 ? (
           <p>No notifications available.</p>
         ) : (
